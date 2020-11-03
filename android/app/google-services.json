@@ -1,0 +1,40 @@
+{
+  "project_info": {
+    "project_number": "810778544901",
+    "firebase_url": "https://autohydro-a90c1.firebaseio.com",
+    "project_id": "autohydro-a90c1",
+    "storage_bucket": "autohydro-a90c1.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:810778544901:android:29dcc817654bfd8963056c",
+        "android_client_info": {
+          "package_name": "com.example.hydroponic"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "810778544901-tr0krrjm6qru4r4m6j7jqv28ti2b3cp0.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDkXYo7qb4gIj_bJ_J4RqbRWxtjzDYlg9s"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "810778544901-tr0krrjm6qru4r4m6j7jqv28ti2b3cp0.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
