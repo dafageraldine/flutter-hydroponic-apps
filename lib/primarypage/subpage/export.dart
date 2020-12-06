@@ -10,6 +10,8 @@ import 'package:path_provider/path_provider.dart';
 import 'package:spreadsheet_decoder/spreadsheet_decoder.dart';
 import 'package:hydroponic/list/list.dart';
 import 'package:intl/intl.dart';
+import 'package:onesignal_flutter/onesignal_flutter.dart';
+import 'package:http/http.dart' as http;
 
 class Export extends StatefulWidget {
   @override
@@ -135,6 +137,7 @@ class _ExportState extends State<Export> {
         ..createSync(recursive: true)
         ..writeAsBytesSync(decoder.encode());
       load = 0;
+      getnotif();
       _showDialog("Export success",
           "open your file on hidroponik exported excel folder");
       setState(() {});
@@ -144,6 +147,15 @@ class _ExportState extends State<Export> {
       // If encountering an error, return 0.
       return 0;
     }
+  }
+
+  Future getnotif() async {
+    var status = await OneSignal.shared.getPermissionSubscriptionState();
+    var playerId = status.subscriptionStatus.userId;
+    try {
+      http.Response cek = await http
+          .get(linkApi + "send_notifications_exportberhasil/" + "$playerId");
+    } catch (e) {}
   }
 
   Future<int> excelf() async {
@@ -191,12 +203,13 @@ class _ExportState extends State<Export> {
         ..writeAsBytesSync(decoder.encode());
       load = 0;
       filtered.clear();
+      await getnotif();
       _showDialog("Export success",
           "open your file on hidroponik exported excel folder");
       setState(() {});
-      print(sheet);
+      // print(sheet);
     } catch (e) {
-      print(e);
+      // print(e);
       filtered.clear();
       // If encountering an error, return 0.
       return 0;

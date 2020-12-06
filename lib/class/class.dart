@@ -22,13 +22,9 @@ class Buah {
   // String lampu;
   String latin;
   Color colorval;
+  String deskripsi;
 
-  Buah(
-    this.buah,
-    this.image,
-    this.latin,
-    this.colorval,
-  );
+  Buah(this.buah, this.image, this.latin, this.colorval, this.deskripsi);
 }
 
 class Buah1 {
@@ -36,8 +32,8 @@ class Buah1 {
   String image;
   String latin;
   Color colorval;
-
-  Buah1(this.buah, this.image, this.latin, this.colorval);
+  String deskripsi;
+  Buah1(this.buah, this.image, this.latin, this.colorval, this.deskripsi);
 }
 
 class Report {
@@ -61,8 +57,8 @@ class Databuah {
   String latin;
   String image;
   Color colorval;
-
-  Databuah(this.buah, this.latin, this.image, this.colorval);
+  String deskripsi;
+  Databuah(this.buah, this.latin, this.image, this.colorval, this.deskripsi);
 }
 
 class Monitor {
@@ -120,7 +116,8 @@ class Profiledata {
   String urlfoto;
   String role;
   String urlfotoawal;
-  Profiledata(this.name, this.urlfoto, this.role, this.urlfotoawal);
+  String email;
+  Profiledata(this.name, this.urlfoto, this.role, this.urlfotoawal, this.email);
 }
 
 class Setpoint {
@@ -134,4 +131,34 @@ class Setpoint {
 class Dataaaa {
   int data;
   Dataaaa(this.data);
+}
+
+class Customplant {
+  String nama;
+  String latin;
+  String deskripsi;
+  Customplant(this.nama, this.latin, this.deskripsi);
+}
+
+class Setpointcustom {
+  String nama;
+  String namasp;
+  String ph;
+  String nutrisi;
+  String lampu;
+  Setpointcustom(this.nama, this.namasp, this.ph, this.lampu, this.nutrisi);
+}
+
+class Log {
+  String jenis;
+  String pesan;
+  DateTime time;
+  Log(this.jenis, this.pesan, this.time);
+}
+
+class Aktifitas {
+  String jenis;
+  String pesan;
+  DateTime time;
+  Aktifitas(this.jenis, this.pesan, this.time);
 }

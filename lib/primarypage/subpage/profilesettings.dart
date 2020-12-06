@@ -2,6 +2,7 @@ import 'dart:io';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:fluttertoast/fluttertoast.dart';
 import 'package:hydroponic/list/list.dart';
 import 'package:hydroponic/primarypage/bottom_nav.dart';
 import 'package:path_provider/path_provider.dart';
@@ -186,81 +187,198 @@ class _ProfilesettingsState extends State<Profilesettings> {
     }
   }
 
+  DateTime backbuttonpressedTime;
+
+  Future<bool> onWillPop() async {
+    DateTime currentTime = DateTime.now();
+    bool backButton = backbuttonpressedTime == null ||
+        currentTime.difference(backbuttonpressedTime) > Duration(seconds: 3);
+    if (backButton) {
+      backbuttonpressedTime = currentTime;
+      Fluttertoast.showToast(
+          msg: "Double Click to exit app",
+          backgroundColor: Colors.black,
+          textColor: Colors.white);
+      return false;
+    }
+    exit(0);
+    return true;
+  }
+
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      resizeToAvoidBottomPadding: false,
-      backgroundColor: Colors.white,
-      body: Container(
-        child: Stack(
-          children: <Widget>[
-            Row(
-              children: <Widget>[
-                Padding(
-                  padding: EdgeInsets.only(
-                      left: MediaQuery.of(context).size.width * 0.05,
-                      top: MediaQuery.of(context).size.width * 0.05),
-                  child: IconButton(
-                    icon: Icon(
-                      Icons.arrow_back_ios,
-                      size: MediaQuery.of(context).size.width * 0.05,
-                      color: Color.fromRGBO(0, 0, 0, 0.54),
+    return WillPopScope(
+      onWillPop: onWillPop,
+      child: Scaffold(
+        resizeToAvoidBottomPadding: false,
+        backgroundColor: Colors.white,
+        body: Container(
+          child: Stack(
+            children: <Widget>[
+              Row(
+                children: <Widget>[
+                  Padding(
+                    padding: EdgeInsets.only(
+                        left: MediaQuery.of(context).size.width * 0.05,
+                        top: MediaQuery.of(context).size.width * 0.05),
+                    child: IconButton(
+                      icon: Icon(
+                        Icons.arrow_back_ios,
+                        size: MediaQuery.of(context).size.width * 0.05,
+                        color: Color.fromRGBO(0, 0, 0, 0.54),
+                      ),
+                      onPressed: () {
+                        b == 1
+                            ? Navigator.of(context, rootNavigator: true).push(
+                                MaterialPageRoute(
+                                    builder: (context) => Bottom()))
+                            : Navigator.of(context).pop();
+                      },
                     ),
-                    onPressed: () {
-                      b == 1
-                          ? Navigator.of(context, rootNavigator: true).push(
-                              MaterialPageRoute(builder: (context) => Bottom()))
-                          : Navigator.of(context).pop();
-                    },
                   ),
-                ),
-                Padding(
-                  padding: EdgeInsets.only(
-                      left: MediaQuery.of(context).size.width * 0.2,
-                      top: MediaQuery.of(context).size.width * 0.052),
-                  child: Text(
-                    "PROFILE SETTINGS",
-                    style: TextStyle(
-                        color: Color.fromRGBO(198, 198, 198, 1),
-                        fontSize: MediaQuery.of(context).size.width * 0.034,
-                        fontWeight: FontWeight.w700),
+                  Padding(
+                    padding: EdgeInsets.only(
+                        left: MediaQuery.of(context).size.width * 0.2,
+                        top: MediaQuery.of(context).size.width * 0.052),
+                    child: Text(
+                      "PROFILE SETTINGS",
+                      style: TextStyle(
+                          color: Color.fromRGBO(198, 198, 198, 1),
+                          fontSize: MediaQuery.of(context).size.width * 0.034,
+                          fontWeight: FontWeight.w700),
+                    ),
+                  )
+                ],
+              ),
+              Column(
+                children: <Widget>[
+                  Padding(
+                    padding: EdgeInsets.only(
+                        left: MediaQuery.of(context).size.width * 0.075,
+                        top: MediaQuery.of(context).size.width * 0.4),
+                    child: Align(
+                        alignment: Alignment.centerLeft,
+                        child: Text(
+                          "Username",
+                          style: TextStyle(
+                              fontSize:
+                                  MediaQuery.of(context).size.width * 0.045,
+                              fontWeight: FontWeight.w400,
+                              color: Colors.black),
+                        )),
                   ),
-                )
-              ],
-            ),
-            Column(
-              children: <Widget>[
-                Padding(
-                  padding: EdgeInsets.only(
-                      left: MediaQuery.of(context).size.width * 0.075,
-                      top: MediaQuery.of(context).size.width * 0.4),
-                  child: Align(
+                  Padding(
+                    padding: EdgeInsets.only(
+                        left: MediaQuery.of(context).size.width * 0.075),
+                    child: Align(
+                        alignment: Alignment.centerLeft,
+                        child: change == 0
+                            ? Row(
+                                children: <Widget>[
+                                  Text(
+                                    profil[0].name,
+                                    style: TextStyle(
+                                        fontSize:
+                                            MediaQuery.of(context).size.width *
+                                                0.045,
+                                        fontWeight: FontWeight.w400,
+                                        color: Colors.black),
+                                  ),
+                                  SizedBox(
+                                    width: 10,
+                                  ),
+                                  IconButton(
+                                      icon: Icon(Icons.edit),
+                                      onPressed: () {
+                                        setState(() {
+                                          change = 1;
+                                          changes = 0;
+                                        });
+                                      })
+                                ],
+                              )
+                            : Column(
+                                children: <Widget>[
+                                  SizedBox(height: 10),
+                                  Container(
+                                    width: MediaQuery.of(context).size.width *
+                                        0.85,
+                                    height: MediaQuery.of(context).size.height *
+                                        0.07,
+                                    child: TextFormField(
+                                        controller: name,
+                                        decoration: InputDecoration(
+                                            border: OutlineInputBorder(),
+                                            hintText: "new username")),
+                                  ),
+                                  SizedBox(height: 10),
+                                  Container(
+                                    width: MediaQuery.of(context).size.width *
+                                        0.85,
+                                    height: MediaQuery.of(context).size.height *
+                                        0.07,
+                                    child: TextFormField(
+                                        controller: pwd,
+                                        obscureText: true,
+                                        decoration: InputDecoration(
+                                            border: OutlineInputBorder(),
+                                            hintText:
+                                                "enter you password to verify")),
+                                  ),
+                                ],
+                              )),
+                  ),
+                  // Padding(
+                  //       padding: EdgeInsets.only(left: MediaQuery.of(context).size.width * 0.075, top: MediaQuery.of(context).size.width * 0.04),
+                  //       child: Align(
+                  //           alignment: Alignment.centerLeft,
+                  //           child: Text(
+                  //             "Email",
+                  //             style: TextStyle(
+                  //                 fontSize: MediaQuery.of(context).size.width * 0.045,
+                  //                 fontWeight: FontWeight.w400,
+                  //                 color: Colors.black),
+                  //           )),
+                  //     ),
+                  //      Padding(
+                  //   padding: EdgeInsets.only(left: MediaQuery.of(context).size.width * 0.075, top: MediaQuery.of(context).size.height * 0.02),
+                  //   child: Align(
+                  //     alignment: Alignment.centerLeft,
+                  //     child: Container(
+                  //       width: MediaQuery.of(context).size.width * 0.85,
+                  //       height: MediaQuery.of(context).size.height * 0.07,
+                  //       child: TextFormField(
+                  //         controller: mail,
+                  //           decoration: InputDecoration(
+                  //               border: OutlineInputBorder(),
+                  //               hintText: "your@email.com")),
+                  //     ),
+                  //   ),
+                  // ),
+                  Padding(
+                    padding: EdgeInsets.only(
+                        left: MediaQuery.of(context).size.width * 0.075,
+                        top: MediaQuery.of(context).size.height * 0.02),
+                    child: Align(
+                        alignment: Alignment.centerLeft,
+                        child: Text(
+                          "Password",
+                          style: TextStyle(
+                              fontSize:
+                                  MediaQuery.of(context).size.width * 0.045,
+                              fontWeight: FontWeight.w400,
+                              color: Colors.black),
+                        )),
+                  ),
+                  Padding(
+                    padding: EdgeInsets.only(
+                        left: MediaQuery.of(context).size.width * 0.075),
+                    child: Align(
                       alignment: Alignment.centerLeft,
-                      child: Text(
-                        "Username",
-                        style: TextStyle(
-                            fontSize: MediaQuery.of(context).size.width * 0.045,
-                            fontWeight: FontWeight.w400,
-                            color: Colors.black),
-                      )),
-                ),
-                Padding(
-                  padding: EdgeInsets.only(
-                      left: MediaQuery.of(context).size.width * 0.075),
-                  child: Align(
-                      alignment: Alignment.centerLeft,
-                      child: change == 0
+                      child: changes == 0
                           ? Row(
                               children: <Widget>[
-                                Text(
-                                  profil[0].name,
-                                  style: TextStyle(
-                                      fontSize:
-                                          MediaQuery.of(context).size.width *
-                                              0.045,
-                                      fontWeight: FontWeight.w400,
-                                      color: Colors.black),
-                                ),
+                                Text("********"),
                                 SizedBox(
                                   width: 10,
                                 ),
@@ -268,228 +386,140 @@ class _ProfilesettingsState extends State<Profilesettings> {
                                     icon: Icon(Icons.edit),
                                     onPressed: () {
                                       setState(() {
-                                        change = 1;
-                                        changes = 0;
+                                        changes = 1;
+                                        change = 0;
                                       });
                                     })
                               ],
                             )
                           : Column(
                               children: <Widget>[
-                                SizedBox(height: 10),
-                                Container(
-                                  width:
-                                      MediaQuery.of(context).size.width * 0.85,
-                                  height:
-                                      MediaQuery.of(context).size.height * 0.07,
-                                  child: TextFormField(
-                                      controller: name,
-                                      decoration: InputDecoration(
-                                          border: OutlineInputBorder(),
-                                          hintText: "new username")),
+                                SizedBox(
+                                  height: 10,
                                 ),
-                                SizedBox(height: 10),
                                 Container(
                                   width:
                                       MediaQuery.of(context).size.width * 0.85,
                                   height:
                                       MediaQuery.of(context).size.height * 0.07,
                                   child: TextFormField(
-                                      controller: pwd,
-                                      obscureText: true,
-                                      decoration: InputDecoration(
-                                          border: OutlineInputBorder(),
-                                          hintText:
-                                              "enter you password to verify")),
+                                    controller: npwd,
+                                    decoration: InputDecoration(
+                                        border: OutlineInputBorder(),
+                                        hintText: "Old Password"),
+                                    obscureText: true,
+                                  ),
+                                ),
+                                SizedBox(
+                                  height: 10,
+                                ),
+                                Container(
+                                  width:
+                                      MediaQuery.of(context).size.width * 0.85,
+                                  height:
+                                      MediaQuery.of(context).size.height * 0.07,
+                                  child: TextFormField(
+                                    controller: nnpwd,
+                                    decoration: InputDecoration(
+                                        border: OutlineInputBorder(),
+                                        hintText: "New Password"),
+                                    obscureText: true,
+                                  ),
+                                ),
+                                SizedBox(
+                                  height: 10,
+                                ),
+                                Container(
+                                  width:
+                                      MediaQuery.of(context).size.width * 0.85,
+                                  height:
+                                      MediaQuery.of(context).size.height * 0.07,
+                                  decoration: BoxDecoration(
+                                      color: Color.fromRGBO(125, 209, 151, 1),
+                                      borderRadius: BorderRadius.circular(10)),
+                                  child: InkWell(
+                                    onTap: () {
+                                      setState(() {
+                                        lx = 1;
+                                      });
+                                      changepass();
+                                    },
+                                    child: Center(
+                                        child: lx == 1
+                                            ? CircularProgressIndicator(
+                                                valueColor:
+                                                    AlwaysStoppedAnimation<
+                                                            Color>(
+                                                        Color.fromRGBO(
+                                                            57, 96, 69, 1)),
+                                              )
+                                            : Text(
+                                                "Save change",
+                                                style: TextStyle(
+                                                    color: Color.fromRGBO(
+                                                        57, 96, 69, 1),
+                                                    fontSize:
+                                                        MediaQuery.of(context)
+                                                                .size
+                                                                .width *
+                                                            0.045,
+                                                    fontWeight:
+                                                        FontWeight.w700),
+                                              )),
+                                  ),
                                 ),
                               ],
-                            )),
-                ),
-                // Padding(
-                //       padding: EdgeInsets.only(left: MediaQuery.of(context).size.width * 0.075, top: MediaQuery.of(context).size.width * 0.04),
-                //       child: Align(
-                //           alignment: Alignment.centerLeft,
-                //           child: Text(
-                //             "Email",
-                //             style: TextStyle(
-                //                 fontSize: MediaQuery.of(context).size.width * 0.045,
-                //                 fontWeight: FontWeight.w400,
-                //                 color: Colors.black),
-                //           )),
-                //     ),
-                //      Padding(
-                //   padding: EdgeInsets.only(left: MediaQuery.of(context).size.width * 0.075, top: MediaQuery.of(context).size.height * 0.02),
-                //   child: Align(
-                //     alignment: Alignment.centerLeft,
-                //     child: Container(
-                //       width: MediaQuery.of(context).size.width * 0.85,
-                //       height: MediaQuery.of(context).size.height * 0.07,
-                //       child: TextFormField(
-                //         controller: mail,
-                //           decoration: InputDecoration(
-                //               border: OutlineInputBorder(),
-                //               hintText: "your@email.com")),
-                //     ),
-                //   ),
-                // ),
-                Padding(
-                  padding: EdgeInsets.only(
-                      left: MediaQuery.of(context).size.width * 0.075,
-                      top: MediaQuery.of(context).size.height * 0.02),
-                  child: Align(
-                      alignment: Alignment.centerLeft,
-                      child: Text(
-                        "Password",
-                        style: TextStyle(
-                            fontSize: MediaQuery.of(context).size.width * 0.045,
-                            fontWeight: FontWeight.w400,
-                            color: Colors.black),
-                      )),
-                ),
-                Padding(
-                  padding: EdgeInsets.only(
-                      left: MediaQuery.of(context).size.width * 0.075),
-                  child: Align(
-                    alignment: Alignment.centerLeft,
-                    child: changes == 0
-                        ? Row(
-                            children: <Widget>[
-                              Text("********"),
-                              SizedBox(
-                                width: 10,
-                              ),
-                              IconButton(
-                                  icon: Icon(Icons.edit),
-                                  onPressed: () {
-                                    setState(() {
-                                      changes = 1;
-                                      change = 0;
-                                    });
-                                  })
-                            ],
-                          )
-                        : Column(
-                            children: <Widget>[
-                              SizedBox(
-                                height: 10,
-                              ),
-                              Container(
-                                width: MediaQuery.of(context).size.width * 0.85,
-                                height:
-                                    MediaQuery.of(context).size.height * 0.07,
-                                child: TextFormField(
-                                  controller: npwd,
-                                  decoration: InputDecoration(
-                                      border: OutlineInputBorder(),
-                                      hintText: "Old Password"),
-                                  obscureText: true,
-                                ),
-                              ),
-                              SizedBox(
-                                height: 10,
-                              ),
-                              Container(
-                                width: MediaQuery.of(context).size.width * 0.85,
-                                height:
-                                    MediaQuery.of(context).size.height * 0.07,
-                                child: TextFormField(
-                                  controller: nnpwd,
-                                  decoration: InputDecoration(
-                                      border: OutlineInputBorder(),
-                                      hintText: "New Password"),
-                                  obscureText: true,
-                                ),
-                              ),
-                              SizedBox(
-                                height: 10,
-                              ),
-                              Container(
-                                width: MediaQuery.of(context).size.width * 0.85,
-                                height:
-                                    MediaQuery.of(context).size.height * 0.07,
-                                decoration: BoxDecoration(
-                                    color: Color.fromRGBO(125, 209, 151, 1),
-                                    borderRadius: BorderRadius.circular(10)),
-                                child: InkWell(
-                                  onTap: () {
-                                    setState(() {
-                                      lx = 1;
-                                    });
-                                    changepass();
-                                  },
-                                  child: Center(
-                                      child: lx == 1
-                                          ? CircularProgressIndicator(
-                                              valueColor:
-                                                  AlwaysStoppedAnimation<Color>(
-                                                      Color.fromRGBO(
-                                                          57, 96, 69, 1)),
-                                            )
-                                          : Text(
-                                              "Save change",
-                                              style: TextStyle(
-                                                  color: Color.fromRGBO(
-                                                      57, 96, 69, 1),
-                                                  fontSize:
-                                                      MediaQuery.of(context)
-                                                              .size
-                                                              .width *
-                                                          0.045,
-                                                  fontWeight: FontWeight.w700),
-                                            )),
-                                ),
-                              ),
-                            ],
-                          ),
+                            ),
+                    ),
                   ),
-                ),
-                SizedBox(
-                  height: MediaQuery.of(context).size.height * 0.04,
-                ),
-                Center(
-                  child: GestureDetector(
-                    onTap: () {
-                      setState(() {
-                        lx = 1;
-                      });
+                  SizedBox(
+                    height: MediaQuery.of(context).size.height * 0.04,
+                  ),
+                  Center(
+                    child: GestureDetector(
+                      onTap: () {
+                        setState(() {
+                          lx = 1;
+                        });
 
-                      changeusername();
-                      // cek();
-                      // cekakun();
-                      // getData();
-                    },
-                    child: change == 0
-                        ? Text("")
-                        : Container(
-                            width: MediaQuery.of(context).size.width * 0.85,
-                            height: MediaQuery.of(context).size.height * 0.07,
-                            decoration: BoxDecoration(
-                                color: Color.fromRGBO(125, 209, 151, 1),
-                                borderRadius: BorderRadius.circular(10)),
-                            child: Center(
-                                child: lx == 1
-                                    ? CircularProgressIndicator(
-                                        valueColor:
-                                            AlwaysStoppedAnimation<Color>(
-                                                Color.fromRGBO(57, 96, 69, 1)),
-                                      )
-                                    : Text(
-                                        "Save change",
-                                        style: TextStyle(
-                                            color:
-                                                Color.fromRGBO(57, 96, 69, 1),
-                                            fontSize: MediaQuery.of(context)
-                                                    .size
-                                                    .width *
-                                                0.045,
-                                            fontWeight: FontWeight.w700),
-                                      )),
-                          ),
+                        changeusername();
+                        // cek();
+                        // cekakun();
+                        // getData();
+                      },
+                      child: change == 0
+                          ? Text("")
+                          : Container(
+                              width: MediaQuery.of(context).size.width * 0.85,
+                              height: MediaQuery.of(context).size.height * 0.07,
+                              decoration: BoxDecoration(
+                                  color: Color.fromRGBO(125, 209, 151, 1),
+                                  borderRadius: BorderRadius.circular(10)),
+                              child: Center(
+                                  child: lx == 1
+                                      ? CircularProgressIndicator(
+                                          valueColor: AlwaysStoppedAnimation<
+                                                  Color>(
+                                              Color.fromRGBO(57, 96, 69, 1)),
+                                        )
+                                      : Text(
+                                          "Save change",
+                                          style: TextStyle(
+                                              color:
+                                                  Color.fromRGBO(57, 96, 69, 1),
+                                              fontSize: MediaQuery.of(context)
+                                                      .size
+                                                      .width *
+                                                  0.045,
+                                              fontWeight: FontWeight.w700),
+                                        )),
+                            ),
+                    ),
                   ),
-                ),
-              ],
-            ),
-          ],
+                ],
+              ),
+            ],
+          ),
         ),
       ),
     );

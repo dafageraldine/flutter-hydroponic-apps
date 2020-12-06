@@ -1,11 +1,21 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:hydroponic/primarypage/splash.dart';
+import 'package:onesignal_flutter/onesignal_flutter.dart';
 // import 'package:hidroponik/primarypage/splash.dart';
 // import 'package:plantrobo/primarypage/splash.dart';
 // import 'package:hidroponik/primarypage/splash.dart';
 
-void main() => runApp(MyApp());
+void main() {
+  WidgetsFlutterBinding.ensureInitialized();
+
+  OneSignal.shared
+      .init("cdf5e784-850b-452c-9ad4-d6ba4af80177", iOSSettings: null);
+  OneSignal.shared
+      .setInFocusDisplayType(OSNotificationDisplayType.notification);
+
+  runApp(MyApp());
+}
 
 // ! you can customize this error widget with your own
 Widget getErrorWidget(BuildContext context, FlutterErrorDetails error) {

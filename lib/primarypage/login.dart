@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'dart:math';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
@@ -149,7 +150,7 @@ class _LoginState extends State<Login> {
       jumlahuser.add(id.length);
 
       for (var i = 0; i < id.length; i++) {
-        print(id[i]['email']);
+        // print(id[i]['email']);
         if (id[i]['email'] == email && id[i]['pass'] == pass) {
           // print("masukkk");
           role = id[i]['role'];
@@ -164,7 +165,8 @@ class _LoginState extends State<Login> {
 //  print(link);
           //  await _write('$email' + ',$pass');
           //  print(token);
-          profil.add(Profiledata(uname.toString(), link, role, url));
+          profil.add(
+              Profiledata(uname.toString(), link, role, url, id[i]['email']));
           await _write('$email', 'token.txt');
           await _write('$pass', 'tokenz.txt');
           //  print(token);
@@ -183,19 +185,105 @@ class _LoginState extends State<Login> {
     }
   }
 
+  getS() async {
+    await Firestore.instance
+        .collection('Setpoint')
+        .getDocuments()
+        .then((value) => val = value.documents);
+    data.clear();
+    data.add(Setp(val[0]['nutrisi']));
+    data.add(Setp(val[0]['ph']));
+    data.add(Setp(val[0]['lampu']));
+    // dummy = data[0]['ph'];
+    // sp3 = data[0]['lampu'];
+    // sp2 = data[0].value;
+    // sp1 = data[1].value;
+    // sp3 = data[2].value;
+    setp.addAll(data);
+
+    setState(() {
+      // sp2 ="ola";
+    });
+  }
+
+  // getfruit() async {
+  //   // ceks.add(1);
+  //   datareport.clear();
+  //   var val;
+  //   await Firestore.instance
+  //       .collection('tanaman')
+  //       .orderBy("tanggal tanam", descending: true)
+  //       .getDocuments()
+  //       .then((value) => val = value.documents);
+  //   // print(val.length);
+  //   if (val.length == 0) {
+  //     // print("belum ada buah");
+  //   } else if (val.length != 0) {
+  //     for (var i = 0; i < val.length; i++) {
+  //       if (val[i]['tanggal panen'] != "") {
+  //         Timestamp timestamp = val[i]['tanggal tanam'];
+  //         var date = DateTime.parse(timestamp.toDate().toString());
+  //         Timestamp timestamps = val[i]['tanggal panen'];
+  //         var date2 = DateTime.parse(timestamps.toDate().toString());
+  //         for (var y = 0; y < datab.length; y++) {
+  //           if (val[i]['buah'] == datab[y].buah) {
+  //             // ceks.add(i);
+  //             // print(val[i]['buah']);
+  //             foto.add(datab[y].image);
+  //             color.add(datab[y].colorval);
+  //             var tgl = DateTime(date.year, date.month, date.day);
+  //             var tgl2 = DateTime(date2.year, date2.month, date2.day + 1);
+  //             final difference = tgl2.difference(tgl).inDays;
+  //             print('$difference' + 'day');
+  //             jumlahdata.add(difference);
+
+  //             datareport.add(
+  //                 Report(val[i]['buah'], date.toString(), date2.toString()));
+  //           }
+  //         }
+  //       } else if (val[i]['tanggal panen'] == "") {
+  //         Timestamp timestamp = val[i]['tanggal tanam'];
+  //         var date = DateTime.parse(timestamp.toDate().toString());
+  //         // Timestamp timestamps = val[i]['tanggal panen'];
+  //         var date2 = DateTime.now();
+  //         for (var y = 0; y < datab.length; y++) {
+  //           if (val[i]['buah'] == datab[y].buah) {
+  //             // print(val[i]['buah']);
+  //             foto.add(datab[y].image);
+  //             color.add(datab[y].colorval);
+  //             var tgl = DateTime(date.year, date.month, date.day);
+  //             var tgl2 = DateTime(date2.year, date2.month, date2.day + 1);
+  //             final difference = tgl2.difference(tgl).inDays;
+  //             // print('$difference' + 'day');
+  //             jumlahdata.add(difference);
+  //             // print(date2);
+  //             datareport.add(
+  //                 Report(val[i]['buah'], date.toString(), date2.toString()));
+  //           }
+  //         }
+  //         // var tgl = DateFormat('y-e-d ').format(date2);
+
+  //       }
+  //     }
+  //   }
+  // }
+
   getfruit() async {
     // ceks.add(1);
+    jumlahdata.clear();
     datareport.clear();
+    foto.clear();
+    color.clear();
     var val;
     await Firestore.instance
         .collection('tanaman')
         .orderBy("tanggal tanam", descending: true)
         .getDocuments()
         .then((value) => val = value.documents);
-    // print(val.length);
-    if (val.length == 0) {
-      // print("belum ada buah");
-    } else if (val.length != 0) {
+    print(val.length);
+    if (val.length == 0)
+      print("belum ada buah");
+    else if (val.length != 0) {
       for (var i = 0; i < val.length; i++) {
         if (val[i]['tanggal panen'] != "") {
           Timestamp timestamp = val[i]['tanggal tanam'];
@@ -211,9 +299,21 @@ class _LoginState extends State<Login> {
               var tgl = DateTime(date.year, date.month, date.day);
               var tgl2 = DateTime(date2.year, date2.month, date2.day + 1);
               final difference = tgl2.difference(tgl).inDays;
-              print('$difference' + 'day');
+              // print('$difference' + 'day');
               jumlahdata.add(difference);
-
+              datareport.add(
+                  Report(val[i]['buah'], date.toString(), date2.toString()));
+            }
+          }
+          for (var k = 0; k < customlog.length; k++) {
+            if (val[i]['buah'] == customlog[k].nama) {
+              foto.add("assets/customplant.svg");
+              color.add(Colors.green[200]);
+              var tgl = DateTime(date.year, date.month, date.day);
+              var tgl2 = DateTime(date2.year, date2.month, date2.day + 1);
+              final difference = tgl2.difference(tgl).inDays;
+              // print('$difference' + 'day');
+              jumlahdata.add(difference);
               datareport.add(
                   Report(val[i]['buah'], date.toString(), date2.toString()));
             }
@@ -225,15 +325,28 @@ class _LoginState extends State<Login> {
           var date2 = DateTime.now();
           for (var y = 0; y < datab.length; y++) {
             if (val[i]['buah'] == datab[y].buah) {
-              // print(val[i]['buah']);
+              print(val[i]['buah']);
               foto.add(datab[y].image);
               color.add(datab[y].colorval);
               var tgl = DateTime(date.year, date.month, date.day);
               var tgl2 = DateTime(date2.year, date2.month, date2.day + 1);
               final difference = tgl2.difference(tgl).inDays;
-              // print('$difference' + 'day');
+              print('$difference' + 'day');
               jumlahdata.add(difference);
               // print(date2);
+              datareport.add(
+                  Report(val[i]['buah'], date.toString(), date2.toString()));
+            }
+          }
+          for (var k = 0; k < customlog.length; k++) {
+            if (val[i]['buah'] == customlog[k].nama) {
+              foto.add("assets/customplant.svg");
+              color.add(Colors.green[200]);
+              var tgl = DateTime(date.year, date.month, date.day);
+              var tgl2 = DateTime(date2.year, date2.month, date2.day + 1);
+              final difference = tgl2.difference(tgl).inDays;
+              // print('$difference' + 'day');
+              jumlahdata.add(difference);
               datareport.add(
                   Report(val[i]['buah'], date.toString(), date2.toString()));
             }
@@ -245,29 +358,50 @@ class _LoginState extends State<Login> {
     }
   }
 
-  getData() async {
-    var fal;
-    await getfruit();
-    await getsetpoint();
+  getcustomplant() async {
+    var val;
     await Firestore.instance
-        .collection('tanaman')
-        .orderBy('tanggal tanam', descending: true)
+        .collection('customplant')
         .getDocuments()
-        .then((value) => fal = value.documents);
+        .then((value) => val = value.documents);
+    customlog.clear();
+    custom.clear();
+    // print(val[0]);
+    if (val.isNotEmpty) {
+      for (var i = 0; i < val.length; i++) {
+        if (val[i]['status'] == "aktif") {
+          custom.add(Customplant(
+              val[i]['tanaman'], val[i]['latin'], val[i]['deskripsi']));
+        }
+        customlog.add(Customplant(
+            val[i]['tanaman'], val[i]['latin'], val[i]['deskripsi']));
+      }
+    }
+  }
+
+  getData() async {
+    await getcustomplant();
+    await getfruit();
+    await getS();
+    await getsetpoint();
     //  print(val);
     //  .getDocuments().then((value) =>  val = value.documents);
     //  var data = val.length;
     //  print(data);
     //  print(val[0]['buah']);
-    if (fal.length != 0) {
-      for (var y = 0; y < datab.length; y++) {
-        if (fal[0]['buah'] == datab[y].buah) {
-          // print("2222222");
-          tampilan.add(Buah1(datab[y].buah, datab[y].image, datab[y].latin,
-              datab[y].colorval));
-        }
-      }
-    }
+
+    // print("2222222");
+    // tampilan.add(Buah1(datab[y].buah, datab[y].image, datab[y].latin,
+    //     datab[y].colorval));
+
+    // }
+
+    int min = 0;
+    int max = 8;
+    var randomizer = new Random();
+    var y = min + randomizer.nextInt(max - min);
+    tampilan.add(Buah1(datab[y].buah, datab[y].image, datab[y].latin,
+        datab[y].colorval, datab[y].deskripsi));
 
     Navigator.push(context, MaterialPageRoute(builder: (context) => Bottom()));
   }
@@ -277,7 +411,7 @@ class _LoginState extends State<Login> {
 
   @override
   Widget build(BuildContext context) {
-    SystemChrome.setEnabledSystemUIOverlays([]);
+    SystemChrome.setEnabledSystemUIOverlays([SystemUiOverlay.bottom]);
     return WillPopScope(
       child: Scaffold(
           // resizeToAvoidBottomInset: true,

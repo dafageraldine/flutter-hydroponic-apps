@@ -4,14 +4,18 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:hydroponic/class/class.dart';
 import 'package:hydroponic/list/list.dart';
 // import 'package:hidroponik/primarypage/dashboard.dart';
 import 'package:hydroponic/primarypage/login.dart';
 import 'package:hydroponic/primarypage/subpage/adduser.dart';
+import 'package:hydroponic/primarypage/subpage/notifications.dart';
 import 'package:hydroponic/primarypage/subpage/profilesettings.dart';
+import 'package:hydroponic/primarypage/subpage/recent.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:path/path.dart' as p;
 import 'package:path_provider/path_provider.dart';
+import 'package:intl/intl.dart';
 
 class Profile extends StatefulWidget {
   @override
@@ -20,6 +24,59 @@ class Profile extends StatefulWidget {
 
 class _ProfileState extends State<Profile> {
   File _image;
+
+  getlog() async {
+    var val;
+    await Firestore.instance
+        .collection('log')
+        .orderBy("tanggal", descending: true)
+        .getDocuments()
+        .then((value) => val = value.documents);
+    // print(val[0]['pesan']);
+    log.clear();
+    if (val.isNotEmpty) {
+      for (var i = 0; i < val.length; i++) {
+        Timestamp timestamp = val[i]['tanggal'];
+        var date = DateTime.parse(timestamp.toDate().toString());
+        log.add(Log(val[i]['jenis'], val[i]['pesan'], date));
+      }
+    }
+    Navigator.of(context, rootNavigator: true)
+        .push(MaterialPageRoute(builder: (context) => Notif()));
+  }
+
+  getactivity() async {
+    var val;
+    // try {
+    await Firestore.instance
+        .collection('activity')
+        // .where("by", isEqualTo: profil[0].email)
+        .orderBy("tanggal", descending: true)
+        .getDocuments()
+        .then((value) => val = value.documents);
+
+    aktifitas.clear();
+    if (val.isNotEmpty) {
+      // val.length > 1
+      //     ? await Firestore.instance
+      //         .collection('activity')
+      //         .orderBy("tanggal", descending: true)
+      //         .where("by", isEqualTo: profil[0].email,)
+      //         .getDocuments()
+      //         .then((value) => val = value.documents)
+      //     : print("");
+      for (var i = 0; i < val.length; i++) {
+        if (val[i]['by'] == profil[0].email) {
+          Timestamp timestamp = val[i]['tanggal'];
+          var date = DateTime.parse(timestamp.toDate().toString());
+          aktifitas.add(Aktifitas(val[i]['jenis'], val[i]['pesan'], date));
+        }
+      }
+    }
+    Navigator.of(context, rootNavigator: true)
+        .push(MaterialPageRoute(builder: (context) => Recent()));
+    // print(aktifitas.length);
+  }
 
   void _showDialog(judul, konten) {
     // flutter defined function
@@ -405,61 +462,436 @@ class _ProfileState extends State<Profile> {
                                   color: Color.fromRGBO(85, 85, 85, 1),
                                   fontSize: MediaQuery.of(context).size.width *
                                       0.04)))
-                      : InkWell(
-                          onTap: () {
-                            Navigator.of(context, rootNavigator: true).push(
-                                MaterialPageRoute(
-                                    builder: (context) => Profilesettings()));
-                          },
-                          child: Container(
-                              height: MediaQuery.of(context).size.width * 0.09,
-                              width: MediaQuery.of(context).size.width * 0.09,
-                              decoration: BoxDecoration(
-                                  borderRadius:
-                                      BorderRadius.all(Radius.circular(10)),
-                                  color: Colors.white,
-                                  boxShadow: [
-                                    BoxShadow(
-                                        blurRadius: 5.0,
-                                        color: Colors.black12,
-                                        spreadRadius: 3.0,
-                                        offset: Offset(0, 5))
-                                  ]),
-                              child: SvgPicture.asset(
-                                "assets/setting.svg",
-                              )),
+                      : Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            InkWell(
+                              onTap: () {
+                                Navigator.of(context, rootNavigator: true).push(
+                                    MaterialPageRoute(
+                                        builder: (context) =>
+                                            Profilesettings()));
+                              },
+                              child: Container(
+                                  height:
+                                      MediaQuery.of(context).size.width * 0.09,
+                                  width:
+                                      MediaQuery.of(context).size.width * 0.09,
+                                  decoration: BoxDecoration(
+                                      borderRadius:
+                                          BorderRadius.all(Radius.circular(10)),
+                                      color: Colors.white,
+                                      boxShadow: [
+                                        BoxShadow(
+                                            blurRadius: 5.0,
+                                            color: Colors.black12,
+                                            spreadRadius: 3.0,
+                                            offset: Offset(0, 5))
+                                      ]),
+                                  child: SvgPicture.asset(
+                                    "assets/setting.svg",
+                                  )),
+                            ),
+                            SizedBox(
+                              width: MediaQuery.of(context).size.width * 0.05,
+                            ),
+                            InkWell(
+                              onTap: () {
+                                getlog();
+                                // Navigator.of(context, rootNavigator: true).push(
+                                //     MaterialPageRoute(
+                                //         builder: (context) => Notif()));
+                              },
+                              child: Container(
+                                  height:
+                                      MediaQuery.of(context).size.width * 0.09,
+                                  width:
+                                      MediaQuery.of(context).size.width * 0.09,
+                                  decoration: BoxDecoration(
+                                      borderRadius:
+                                          BorderRadius.all(Radius.circular(10)),
+                                      color: Colors.white,
+                                      boxShadow: [
+                                        BoxShadow(
+                                            blurRadius: 5.0,
+                                            color: Colors.black12,
+                                            spreadRadius: 3.0,
+                                            offset: Offset(0, 5))
+                                      ]),
+                                  child: Stack(
+                                    children: [
+                                      SvgPicture.asset(
+                                        "assets/notif.svg",
+                                        width:
+                                            MediaQuery.of(context).size.width,
+                                      ),
+                                      Padding(
+                                        padding: EdgeInsets.only(
+                                            top: MediaQuery.of(context)
+                                                    .size
+                                                    .width *
+                                                0.02,
+                                            left: MediaQuery.of(context)
+                                                    .size
+                                                    .width *
+                                                0.05),
+                                        child: Container(
+                                          width: MediaQuery.of(context)
+                                                  .size
+                                                  .width *
+                                              0.02,
+                                          height: MediaQuery.of(context)
+                                                  .size
+                                                  .width *
+                                              0.02,
+                                          decoration: BoxDecoration(
+                                              color: Colors.redAccent,
+                                              borderRadius: BorderRadius.all(
+                                                  Radius.circular(50))),
+                                        ),
+                                      ),
+                                    ],
+                                  )),
+                            ),
+                          ],
                         ),
                 ),
                 profil[0].role == 'admin'
                     ? Padding(
                         padding: EdgeInsets.only(
-                            top: MediaQuery.of(context).size.width * 0.04),
-                        child: InkWell(
-                          onTap: () {
-                            Navigator.of(context, rootNavigator: true).push(
-                                MaterialPageRoute(
-                                    builder: (context) => Profilesettings()));
-                          },
-                          child: Container(
-                              height: MediaQuery.of(context).size.width * 0.09,
-                              width: MediaQuery.of(context).size.width * 0.09,
-                              decoration: BoxDecoration(
-                                  borderRadius:
-                                      BorderRadius.all(Radius.circular(10)),
-                                  color: Colors.white,
-                                  boxShadow: [
-                                    BoxShadow(
-                                        blurRadius: 5.0,
-                                        color: Colors.black12,
-                                        spreadRadius: 3.0,
-                                        offset: Offset(0, 5))
-                                  ]),
-                              child: SvgPicture.asset(
-                                "assets/setting.svg",
-                              )),
+                            top: MediaQuery.of(context).size.height * 0.02),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            InkWell(
+                              onTap: () {
+                                Navigator.of(context, rootNavigator: true).push(
+                                    MaterialPageRoute(
+                                        builder: (context) =>
+                                            Profilesettings()));
+                              },
+                              child: Container(
+                                  height:
+                                      MediaQuery.of(context).size.width * 0.09,
+                                  width:
+                                      MediaQuery.of(context).size.width * 0.09,
+                                  decoration: BoxDecoration(
+                                      borderRadius:
+                                          BorderRadius.all(Radius.circular(10)),
+                                      color: Colors.white,
+                                      boxShadow: [
+                                        BoxShadow(
+                                            blurRadius: 5.0,
+                                            color: Colors.black12,
+                                            spreadRadius: 3.0,
+                                            offset: Offset(0, 5))
+                                      ]),
+                                  child: SvgPicture.asset(
+                                    "assets/setting.svg",
+                                  )),
+                            ),
+                            SizedBox(
+                              width: MediaQuery.of(context).size.width * 0.05,
+                            ),
+                            InkWell(
+                              onTap: () {
+                                getlog();
+                                // Navigator.of(context, rootNavigator: true).push(
+                                //     MaterialPageRoute(
+                                //         builder: (context) => Notif()));
+                              },
+                              child: Container(
+                                  height:
+                                      MediaQuery.of(context).size.width * 0.09,
+                                  width:
+                                      MediaQuery.of(context).size.width * 0.09,
+                                  decoration: BoxDecoration(
+                                      borderRadius:
+                                          BorderRadius.all(Radius.circular(10)),
+                                      color: Colors.white,
+                                      boxShadow: [
+                                        BoxShadow(
+                                            blurRadius: 5.0,
+                                            color: Colors.black12,
+                                            spreadRadius: 3.0,
+                                            offset: Offset(0, 5))
+                                      ]),
+                                  child: Stack(
+                                    children: [
+                                      SvgPicture.asset(
+                                        "assets/notif.svg",
+                                        width:
+                                            MediaQuery.of(context).size.width,
+                                      ),
+                                      Padding(
+                                        padding: EdgeInsets.only(
+                                            top: MediaQuery.of(context)
+                                                    .size
+                                                    .width *
+                                                0.02,
+                                            left: MediaQuery.of(context)
+                                                    .size
+                                                    .width *
+                                                0.05),
+                                        child: Container(
+                                          width: MediaQuery.of(context)
+                                                  .size
+                                                  .width *
+                                              0.02,
+                                          height: MediaQuery.of(context)
+                                                  .size
+                                                  .width *
+                                              0.02,
+                                          decoration: BoxDecoration(
+                                              color: Colors.redAccent,
+                                              borderRadius: BorderRadius.all(
+                                                  Radius.circular(50))),
+                                        ),
+                                      ),
+                                    ],
+                                  )),
+                            ),
+                          ],
                         ),
                       )
-                    : Text("")
+                    : Text(""),
+                Padding(
+                  padding: EdgeInsets.only(
+                      top: MediaQuery.of(context).size.height * 0.05,
+                      left: MediaQuery.of(context).size.width * 0.08),
+                  child: Column(
+                    children: [
+                      Align(
+                        alignment: Alignment.centerLeft,
+                        child: InkWell(
+                          onTap: () async {
+                            // await getactivity();
+                          },
+                          child: Text(
+                            "Recent activities",
+                            style: TextStyle(
+                                fontFamily: 'Inter',
+                                fontWeight: FontWeight.w900,
+                                color: Color.fromRGBO(85, 85, 85, 1),
+                                fontSize:
+                                    MediaQuery.of(context).size.width * 0.04),
+                          ),
+                        ),
+                      ),
+                      Row(
+                        children: [
+                          Text(
+                            "All activities that you have done will be\ndisplayed here",
+                            style: TextStyle(
+                                fontFamily: 'Inter normal',
+                                fontWeight: FontWeight.normal,
+                                color: Color.fromRGBO(166, 166, 166, 1),
+                                fontSize:
+                                    MediaQuery.of(context).size.width * 0.034),
+                          ),
+                          SizedBox(
+                            width: MediaQuery.of(context).size.width * 0.08,
+                          ),
+                          InkWell(
+                            onTap: () async {
+                              await getactivity();
+                            },
+                            child: Text(
+                              "See all",
+                              style: TextStyle(
+                                  color: Color.fromRGBO(96, 168, 90, 1),
+                                  fontSize:
+                                      MediaQuery.of(context).size.width * 0.034,
+                                  fontWeight: FontWeight.w400),
+                            ),
+                          )
+                        ],
+                      ),
+                      ListView.builder(
+                        itemBuilder: (c, i) {
+                          return Padding(
+                            padding: EdgeInsets.only(
+                                top: MediaQuery.of(context).size.height * 0.03),
+                            child: Column(
+                              children: [
+                                Row(
+                                  children: [
+                                    SvgPicture.asset(
+                                      aktifitas[i].jenis == "ubah"
+                                          ? "assets/setting.svg"
+                                          : "assets/plus.svg",
+                                      width: MediaQuery.of(context).size.width *
+                                          0.07,
+                                    ),
+                                    SizedBox(
+                                      width: MediaQuery.of(context).size.width *
+                                          0.02,
+                                    ),
+                                    Text(
+                                      aktifitas[i].jenis == "ubah"
+                                          ? "You have"
+                                          : "New fruit:",
+                                      style: TextStyle(
+                                          fontFamily: 'Inter normal',
+                                          fontWeight: FontWeight.normal,
+                                          color: Color.fromRGBO(85, 85, 85, 1),
+                                          fontSize: MediaQuery.of(context)
+                                                  .size
+                                                  .width *
+                                              0.034),
+                                    ),
+                                    SizedBox(
+                                      width: MediaQuery.of(context).size.width *
+                                          0.02,
+                                    ),
+                                    Text(
+                                      aktifitas[i].jenis == "ubah"
+                                          ? aktifitas[i].pesan.length > 27
+                                              ? aktifitas[i]
+                                                      .pesan
+                                                      .substring(0, 26) +
+                                                  ".."
+                                              : aktifitas[i].pesan
+                                          : aktifitas[i].pesan,
+                                      style: TextStyle(
+                                          fontFamily: 'Inter normal',
+                                          fontWeight: FontWeight.w900,
+                                          color:
+                                              Color.fromRGBO(111, 229, 123, 1),
+                                          fontSize: MediaQuery.of(context)
+                                                  .size
+                                                  .width *
+                                              0.034),
+                                    ),
+                                    aktifitas[i].jenis == "tambah"
+                                        ? Text(
+                                            " Succesfully added",
+                                            style: TextStyle(
+                                                fontFamily: 'Inter normal',
+                                                fontWeight: FontWeight.normal,
+                                                color: Color.fromRGBO(
+                                                    85, 85, 85, 1),
+                                                fontSize: MediaQuery.of(context)
+                                                        .size
+                                                        .width *
+                                                    0.034),
+                                          )
+                                        : SizedBox(
+                                            height: 0,
+                                          )
+                                  ],
+                                ),
+                                Padding(
+                                  padding: EdgeInsets.only(
+                                      left: MediaQuery.of(context).size.width *
+                                          0.09),
+                                  child: Align(
+                                    alignment: Alignment.centerLeft,
+                                    child: Text(
+                                      DateFormat('d LLL HH:mm')
+                                          .format(aktifitas[i].time),
+                                      style: TextStyle(
+                                          fontFamily: 'Inter normal',
+                                          fontWeight: FontWeight.normal,
+                                          color:
+                                              Color.fromRGBO(166, 166, 166, 1),
+                                          fontSize: MediaQuery.of(context)
+                                                  .size
+                                                  .width *
+                                              0.03),
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          );
+                        },
+                        shrinkWrap: true,
+                        physics: ClampingScrollPhysics(),
+                        itemCount: aktifitas.isEmpty
+                            ? 0
+                            : aktifitas.length >= 2 ? 2 : aktifitas.length,
+                      ),
+                      // Padding(
+                      //   padding: EdgeInsets.only(
+                      //       top: MediaQuery.of(context).size.height * 0.03),
+                      //   child: Column(
+                      //     children: [
+                      //       Row(
+                      //         children: [
+                      //           SvgPicture.asset(
+                      //             "assets/plus.svg",
+                      //             width:
+                      //                 MediaQuery.of(context).size.width * 0.07,
+                      //           ),
+                      //           SizedBox(
+                      //             width:
+                      //                 MediaQuery.of(context).size.width * 0.02,
+                      //           ),
+                      //           Text(
+                      //             "New fruit:",
+                      //             style: TextStyle(
+                      //                 fontFamily: 'Inter normal',
+                      //                 fontWeight: FontWeight.normal,
+                      //                 color: Color.fromRGBO(85, 85, 85, 1),
+                      //                 fontSize:
+                      //                     MediaQuery.of(context).size.width *
+                      //                         0.034),
+                      //           ),
+                      //           SizedBox(
+                      //             width:
+                      //                 MediaQuery.of(context).size.width * 0.02,
+                      //           ),
+                      //           Text(
+                      //             "Apple",
+                      //             style: TextStyle(
+                      //                 fontFamily: 'Inter normal',
+                      //                 fontWeight: FontWeight.w900,
+                      //                 color: Color.fromRGBO(111, 229, 123, 1),
+                      //                 fontSize:
+                      //                     MediaQuery.of(context).size.width *
+                      //                         0.034),
+                      //           ),
+                      //           SizedBox(
+                      //             width:
+                      //                 MediaQuery.of(context).size.width * 0.02,
+                      //           ),
+                      //           Text(
+                      //             "Succesfully added",
+                      //             style: TextStyle(
+                      //                 fontFamily: 'Inter normal',
+                      //                 fontWeight: FontWeight.normal,
+                      //                 color: Color.fromRGBO(85, 85, 85, 1),
+                      //                 fontSize:
+                      //                     MediaQuery.of(context).size.width *
+                      //                         0.034),
+                      //           ),
+                      //         ],
+                      //       ),
+                      //       Padding(
+                      //         padding: EdgeInsets.only(
+                      //             left:
+                      //                 MediaQuery.of(context).size.width * 0.09),
+                      //         child: Align(
+                      //           alignment: Alignment.centerLeft,
+                      //           child: Text(
+                      //             "13 Nov",
+                      //             style: TextStyle(
+                      //                 fontFamily: 'Inter normal',
+                      //                 fontWeight: FontWeight.normal,
+                      //                 color: Color.fromRGBO(166, 166, 166, 1),
+                      //                 fontSize:
+                      //                     MediaQuery.of(context).size.width *
+                      //                         0.03),
+                      //           ),
+                      //         ),
+                      //       ),
+                      //     ],
+                      //   ),
+                      // )
+                    ],
+                  ),
+                ),
               ],
             ),
           ),

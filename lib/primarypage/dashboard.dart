@@ -1,14 +1,20 @@
 import 'dart:async';
+import 'dart:math';
 
+import 'package:date_format/date_format.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter_svg/flutter_svg.dart';
 import 'package:firebase_database/firebase_database.dart';
 import 'package:hydroponic/class/class.dart';
+import 'package:hydroponic/primarypage/bottom_nav.dart';
 import 'package:hydroponic/primarypage/subpage/customsp.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:hydroponic/list/list.dart';
 import 'package:hydroponic/primarypage/subpage/detailplant.dart';
+import 'package:hydroponic/primarypage/subpage/editsp.dart';
+import 'package:hydroponic/primarypage/subpage/editspupdate.dart';
 import 'package:hydroponic/primarypage/subpage/notes.dart';
 import 'package:intl/intl.dart';
 
@@ -35,6 +41,168 @@ class _DashboardState extends State<Dashboard> {
 
 //   });
 // }
+  var jenis;
+  var datas;
+  var segmen;
+  var at;
+  var loop1;
+  var loop2;
+  var loop3;
+  var loop4;
+  var loop5;
+  var loop6;
+  var loop7;
+  var loop8;
+  getdata() async {
+    var time = DateFormat('yyyy-MM-dd').format(DateTime.now());
+    DateTime start = DateTime.parse(time + ' 00:00');
+    DateTime end = DateTime.parse(time + ' 23:59');
+    // print(start);
+    // print(notes[0]['tanggal dan waktu']);
+    // Timestamp timestamp = notes[0]['tanggal dan waktu'];
+    // var date = DateTime.parse(timestamp.toDate().toString());
+    //   print('$date' + 'ini');
+    // if (time.toString() == notes[0]['tanggal dan waktu'].toString())
+    // print("sama");
+
+    //  print(todayDate);
+    //  print(formatDate(todayDate, [yyyy, '/', mm, '/', dd, ' ', hh, ':', nn, ':', ss, ' ', am]));
+    await Firestore.instance
+        .collection("Sensor")
+        .where("tanggal dan waktu",
+            isGreaterThanOrEqualTo: start, isLessThan: end)
+        .getDocuments()
+        .then((value) => datas = value.documents);
+    if (datas.length == 0) {
+      databar1.clear();
+      databar2.clear();
+      databar3.clear();
+      databar4.clear();
+      currindex = 1;
+
+      setState(() {});
+
+      Navigator.of(context, rootNavigator: true)
+          .push(MaterialPageRoute(builder: (context) => Bottom()));
+      // _showDialog("Information", "Belum ada data");
+    } else if (datas.length != 0) {
+      print(datas);
+      segment(datas.length);
+    }
+    // var time = timeago.format(waktu);
+    // Timestamp timestamp = datas;
+    // if (datas.length > 7 ){
+    // var math = (10 / 5  ).floor();
+//  var date = DateTime.parse(timestamp.toDate().toString());
+    // var date = new DateTime.fromMillisecondsSinceEpoch(waktu * 1000);
+    // print(formatDate(date, ['HH',':','nn'],));
+    // print(timeago.format(DateTime.tryParse(timestamp.toDate().toString())));//jika mau mendapatkan log
+  }
+
+  tampildata(awal, iter) {
+    databar1.clear();
+    databar2.clear();
+    databar3.clear();
+    databar4.clear();
+    for (var i = awal; i < iter; i++) {
+      Timestamp timestamp = datas[i]['tanggal dan waktu'];
+      var date = DateTime.parse(timestamp.toDate().toString());
+      var tgl = formatDate(
+        date,
+        ['HH', ':', 'nn'],
+      );
+      jenis == "lampu"
+          ? databar1.add(Stacked(tgl.toString(), datas[i]['lampu'],
+              Color.fromRGBO(96, 168, 90, 1)))
+          : jenis == "air"
+              ? databar2.add(Stacked(tgl.toString(), datas[i]['tinggi air'],
+                  Color.fromRGBO(130, 255, 119, 1)))
+              : jenis == "nutrisi"
+                  ? databar3.add(Stacked(tgl.toString(), datas[i]['nutrisi'],
+                      Color.fromRGBO(52, 104, 67, 1)))
+                  : jenis == "ph"
+                      ? databar4.add(Stacked(tgl.toString(), datas[i]['ph'],
+                          Color.fromRGBO(135, 173, 70, 0.62)))
+                      : print("");
+    }
+    currindex = 1;
+    setState(() {});
+
+    Navigator.of(context, rootNavigator: true)
+        .push(MaterialPageRoute(builder: (context) => Bottom()));
+  }
+
+  segment(length) {
+    // var length;
+    if (length < 8) {
+      tampildata(0, length);
+      segmen = 1;
+      at = 1;
+      print("$length" + " hasil " + '$length');
+    } else {
+      segmen = int.parse((length / 5).toStringAsFixed(0));
+      loop1 = int.parse((length / segmen).toStringAsFixed(0));
+      loop2 = length - loop1;
+      loop3 = int.parse((loop2 / (loop2 / loop1)).toStringAsFixed(0));
+      if (loop2 < 7) {
+        at = 1;
+        segmen = 2;
+        tampildata(0, loop1);
+        print("$length" + " hasil " + '$loop1' + ' $loop2');
+      } else if (loop2 > 7) {
+        loop4 = loop2 - loop3;
+        loop5 = loop4 - (loop4 - loop3);
+        loop6 = length - (loop1 + loop3 + loop5);
+        if (loop4 < 7) {
+          at = 1;
+          segmen = 3;
+          tampildata(0, loop1);
+          print("$length" + " hasil " + "$loop1" + ' $loop3' + ' $loop4');
+        } else if (loop4 > 7) {
+          if (loop6 < 7) {
+            at = 1;
+            segmen = 4;
+            tampildata(0, loop1);
+            print("$length" +
+                " hasil " +
+                "$loop1" +
+                ' $loop3' +
+                ' $loop5' +
+                ' $loop6');
+          } else if (loop6 > 7) {
+            loop7 = loop6 - (loop6 - loop5);
+            loop8 = loop6 - loop7;
+            at = 1;
+            segmen = 5;
+            tampildata(0, loop1);
+            print("$length" +
+                " hasil " +
+                "$loop1" +
+                ' $loop3' +
+                ' $loop5' +
+                ' $loop7' +
+                ' $loop8');
+          }
+        }
+      }
+    }
+  }
+
+  get_fruitandspname_latest() async {
+    await Firestore.instance
+        .collection('tanaman')
+        .orderBy("tanggal tanam", descending: true)
+        .getDocuments()
+        .then((value) => val = value.documents);
+    for (var i = 0; i < val.length; i++) {
+      if (val[i]['tanggal panen'] == "") {
+        var jsp = val[i]['jsp'];
+        jsp == 1 ? titles = val[i]['SP'] : titles = val[i]['sp' + "$jsp"];
+        buahedit = val[i]['buah'];
+      }
+    }
+  }
+
   gettime() {
     var tgl = DateTime.now();
     var tgl2 = DateFormat('EEE , d LLL y').format(tgl);
@@ -66,9 +234,7 @@ class _DashboardState extends State<Dashboard> {
         setp[2].value != data[2].value) {
       setp.clear();
       setp.addAll(data);
-      Timer(const Duration(seconds: 1), () async {
-        await getData();
-      });
+
       setState(() {
         // sp2 ="ola";
       });
@@ -79,58 +245,66 @@ class _DashboardState extends State<Dashboard> {
     if (tampilan[0].buah == "Strawberry") {
       tampilsp.addAll(strawberry);
       sp.add(Buah(tampilan[0].buah, tampilan[0].image, tampilan[0].latin,
-          tampilan[0].colorval));
+          tampilan[0].colorval, tampilan[0].deskripsi));
       Navigator.of(context, rootNavigator: true)
           .push(MaterialPageRoute(builder: (context) => Detailplant()));
     } else if (tampilan[0].buah == "Tomato") {
       tampilsp.addAll(tomato);
       sp.add(Buah(tampilan[0].buah, tampilan[0].image, tampilan[0].latin,
-          tampilan[0].colorval));
+          tampilan[0].colorval, tampilan[0].deskripsi));
       Navigator.of(context, rootNavigator: true)
           .push(MaterialPageRoute(builder: (context) => Detailplant()));
     } else if (tampilan[0].buah == "Orange") {
       tampilsp.addAll(orange);
       sp.add(Buah(tampilan[0].buah, tampilan[0].image, tampilan[0].latin,
-          tampilan[0].colorval));
+          tampilan[0].colorval, tampilan[0].deskripsi));
       Navigator.of(context, rootNavigator: true)
           .push(MaterialPageRoute(builder: (context) => Detailplant()));
     } else if (tampilan[0].buah == "Apple") {
       tampilsp.addAll(apple);
       sp.add(Buah(tampilan[0].buah, tampilan[0].image, tampilan[0].latin,
-          tampilan[0].colorval));
+          tampilan[0].colorval, tampilan[0].deskripsi));
       Navigator.of(context, rootNavigator: true)
           .push(MaterialPageRoute(builder: (context) => Detailplant()));
     } else if (tampilan[0].buah == "Egg Plant") {
       tampilsp.addAll(eggplant);
       sp.add(Buah(tampilan[0].buah, tampilan[0].image, tampilan[0].latin,
-          tampilan[0].colorval));
+          tampilan[0].colorval, tampilan[0].deskripsi));
       Navigator.of(context, rootNavigator: true)
           .push(MaterialPageRoute(builder: (context) => Detailplant()));
     } else if (tampilan[0].buah == "Blueberry") {
       tampilsp.addAll(blueberry);
       sp.add(Buah(tampilan[0].buah, tampilan[0].image, tampilan[0].latin,
-          tampilan[0].colorval));
+          tampilan[0].colorval, tampilan[0].deskripsi));
       Navigator.of(context, rootNavigator: true)
           .push(MaterialPageRoute(builder: (context) => Detailplant()));
     } else if (tampilan[0].buah == "Mango") {
       tampilsp.addAll(mango);
       sp.add(Buah(tampilan[0].buah, tampilan[0].image, tampilan[0].latin,
-          tampilan[0].colorval));
+          tampilan[0].colorval, tampilan[0].deskripsi));
       Navigator.of(context, rootNavigator: true)
           .push(MaterialPageRoute(builder: (context) => Detailplant()));
     } else if (tampilan[0].buah == "Watermelon") {
       tampilsp.addAll(watermelon);
       sp.add(Buah(tampilan[0].buah, tampilan[0].image, tampilan[0].latin,
-          tampilan[0].colorval));
+          tampilan[0].colorval, tampilan[0].deskripsi));
       Navigator.of(context, rootNavigator: true)
           .push(MaterialPageRoute(builder: (context) => Detailplant()));
     } else if (tampilan[0].buah == "Green Chili") {
       tampilsp.addAll(greenchili);
       sp.add(Buah(tampilan[0].buah, tampilan[0].image, tampilan[0].latin,
-          tampilan[0].colorval));
+          tampilan[0].colorval, tampilan[0].deskripsi));
       Navigator.of(context, rootNavigator: true)
           .push(MaterialPageRoute(builder: (context) => Detailplant()));
     }
+  }
+
+  random() {
+    int min = 0;
+    int max = 8;
+    var randomizer = new Random();
+    var rNum = min + randomizer.nextInt(max - min);
+    print(rNum);
   }
 
   getsetpoint() async {
@@ -191,36 +365,6 @@ class _DashboardState extends State<Dashboard> {
     }
   }
 
-  getData() async {
-    var vals;
-    // await getfruit();
-    // await getsetpoint();
-    // await getS();
-    await Firestore.instance
-        .collection('tanaman')
-        .orderBy('tanggal tanam', descending: true)
-        .getDocuments()
-        .then((value) => vals = value.documents);
-    //  print(val);
-    //  .getDocuments().then((value) =>  val = value.documents);
-    // var data = vals.length;
-    // print(data);
-    print(vals[0]['buah']);
-    if (vals.length != 0) {
-      for (var y = 0; y < datab.length; y++) {
-        if (vals[0]['buah'] == datab[y].buah) {
-          tampilan.clear();
-          // print("ssssss");
-          // ignore: unnecessary_statements
-          // tampilan[0].buah == datab[y].buah;
-          tampilan.add(Buah1(datab[y].buah, datab[y].image, datab[y].latin,
-              datab[y].colorval));
-          setState(() {});
-        }
-      }
-    }
-  }
-
   @override
   void initState() {
     // print(tampilan.length);
@@ -231,6 +375,7 @@ class _DashboardState extends State<Dashboard> {
 
   @override
   Widget build(BuildContext context) {
+    SystemChrome.setEnabledSystemUIOverlays([SystemUiOverlay.bottom]);
     return Scaffold(
       backgroundColor: Colors.white,
       body: SingleChildScrollView(
@@ -391,25 +536,14 @@ class _DashboardState extends State<Dashboard> {
                             left: MediaQuery.of(context).size.width * 0.05),
                         child: Align(
                           alignment: Alignment.topLeft,
-                          child: tampilan.length == 0
-                              ? Text(
-                                  "Pick a plant first",
-                                  style: TextStyle(
-                                      color: Colors.black,
-                                      fontSize:
-                                          MediaQuery.of(context).size.width *
-                                              0.042,
-                                      fontWeight: FontWeight.w700),
-                                )
-                              : Text(
-                                  "Did you know?",
-                                  style: TextStyle(
-                                      color: Colors.black,
-                                      fontSize:
-                                          MediaQuery.of(context).size.width *
-                                              0.042,
-                                      fontWeight: FontWeight.w700),
-                                ),
+                          child: Text(
+                            "Did you know?",
+                            style: TextStyle(
+                                color: Colors.black,
+                                fontSize:
+                                    MediaQuery.of(context).size.width * 0.042,
+                                fontWeight: FontWeight.w700),
+                          ),
                         ),
                       ),
                       Padding(
@@ -418,27 +552,16 @@ class _DashboardState extends State<Dashboard> {
                         ),
                         child: Container(
                             width: MediaQuery.of(context).size.width * 0.7,
-                            height: MediaQuery.of(context).size.width * 0.1,
-                            child: tampilan.length == 0
-                                ? Text(
-                                    "go to Discover hydroponic-plants page first",
-                                    style: TextStyle(
-                                        color: Color.fromRGBO(176, 176, 176, 1),
-                                        fontSize:
-                                            MediaQuery.of(context).size.width *
-                                                0.0380,
-                                        fontWeight: FontWeight.w300),
-                                  )
-                                : Text(
-                                    tampilan[0].buah +
-                                        " adalah buah yang sehat dan kaya akan vitamin yang baik untuk tubuh anda",
-                                    style: TextStyle(
-                                        color: Color.fromRGBO(176, 176, 176, 1),
-                                        fontSize:
-                                            MediaQuery.of(context).size.width *
-                                                0.0380,
-                                        fontWeight: FontWeight.w300),
-                                  )),
+                            height: MediaQuery.of(context).size.width * 0.08,
+                            child: Text(
+                              tampilan[0].deskripsi + "...",
+                              textAlign: TextAlign.justify,
+                              style: TextStyle(
+                                  color: Color.fromRGBO(176, 176, 176, 1),
+                                  fontSize:
+                                      MediaQuery.of(context).size.width * 0.034,
+                                  fontWeight: FontWeight.normal),
+                            )),
                       ),
                       Padding(
                         padding: EdgeInsets.only(
@@ -446,24 +569,21 @@ class _DashboardState extends State<Dashboard> {
                             right: MediaQuery.of(context).size.width * 0.08),
                         child: Align(
                           alignment: Alignment.bottomRight,
-                          child: tampilan.length == 0
-                              ? Text("")
-                              : InkWell(
-                                  onTap: () {
-                                    tampilsp.clear();
-                                    sp.clear();
-                                    matching();
-                                  },
-                                  child: Text(
-                                    "Learn more",
-                                    style: TextStyle(
-                                        color: tampilan[0].colorval,
-                                        fontSize:
-                                            MediaQuery.of(context).size.width *
-                                                0.036,
-                                        fontWeight: FontWeight.w500),
-                                  ),
-                                ),
+                          child: InkWell(
+                            onTap: () {
+                              tampilsp.clear();
+                              sp.clear();
+                              matching();
+                            },
+                            child: Text(
+                              "Learn more",
+                              style: TextStyle(
+                                  color: tampilan[0].colorval,
+                                  fontSize:
+                                      MediaQuery.of(context).size.width * 0.036,
+                                  fontWeight: FontWeight.w500),
+                            ),
+                          ),
                         ),
                       ),
                     ],
@@ -520,7 +640,498 @@ class _DashboardState extends State<Dashboard> {
                           children: <Widget>[
                             Row(
                               children: <Widget>[
-                                Container(
+                                InkWell(
+                                  onTap: () {
+                                    setState(() {
+                                      jenis = "lampu";
+                                    });
+                                    getdata();
+                                  },
+                                  child: Container(
+                                    height: MediaQuery.of(context).size.width *
+                                        0.205,
+                                    width: MediaQuery.of(context).size.width *
+                                        0.205,
+                                    decoration: BoxDecoration(
+                                        borderRadius:
+                                            BorderRadius.circular(15.0),
+                                        color: Colors.white,
+                                        boxShadow: [
+                                          BoxShadow(
+                                              color: Colors.grey[300],
+                                              blurRadius: 20,
+                                              offset: Offset(0, 3))
+                                        ]),
+                                    child: Padding(
+                                      padding: EdgeInsets.only(
+                                          top: MediaQuery.of(context)
+                                                  .size
+                                                  .width *
+                                              0.055),
+                                      child: Column(
+                                        children: <Widget>[
+                                          // Image.asset("assets/iconfinder_24_4698595.png",height: MediaQuery.of(context).size.width * 0.23,width: MediaQuery.of(context).size.width * 0.23,),
+
+                                          Column(
+                                            children: <Widget>[
+                                              Stack(
+                                                children: <Widget>[
+                                                  SvgPicture.asset(
+                                                    "assets/lamp.svg",
+                                                    height:
+                                                        MediaQuery.of(context)
+                                                                .size
+                                                                .width *
+                                                            0.08,
+                                                    width:
+                                                        MediaQuery.of(context)
+                                                                .size
+                                                                .width *
+                                                            0.08,
+                                                  ),
+                                                ],
+                                              ),
+                                              Padding(
+                                                padding: EdgeInsets.only(
+                                                    left: MediaQuery.of(context)
+                                                            .size
+                                                            .width *
+                                                        0.02,
+                                                    top: MediaQuery.of(context)
+                                                            .size
+                                                            .width *
+                                                        0.015),
+                                                child: Row(
+                                                  children: <Widget>[
+                                                    // DataSnapshot snapshot = snap.data.snapshot;
+                                                    // if(!snap.hasData)return CircularProgressIndicator(valueColor: AlwaysStoppedAnimation<Color>(Colors.grey),);
+                                                    // DataSnapshot snapshot = snap.data.snapshot;
+                                                    // // print(snapshot.value['sensor']);
+                                                    // var string = snapshot.value['sensor'];
+                                                    // var val = string.split('#');
+                                                    // data.add(val);
+                                                    // print(val);
+
+                                                    Padding(
+                                                        padding: EdgeInsets.only(
+                                                            left: MediaQuery.of(
+                                                                        context)
+                                                                    .size
+                                                                    .width *
+                                                                0.02,
+                                                            top:
+                                                                MediaQuery.of(context)
+                                                                        .size
+                                                                        .width *
+                                                                    0.0),
+                                                        child: Container(
+                                                            height: MediaQuery.of(
+                                                                        context)
+                                                                    .size
+                                                                    .width *
+                                                                0.02,
+                                                            width: MediaQuery.of(
+                                                                        context)
+                                                                    .size
+                                                                    .width *
+                                                                0.02,
+                                                            child:
+                                                                CircularProgressIndicator())),
+
+                                                    Padding(
+                                                      padding: EdgeInsets.only(
+                                                          left: MediaQuery.of(
+                                                                      context)
+                                                                  .size
+                                                                  .width *
+                                                              0.02),
+                                                      child: Text(
+                                                        "/",
+                                                        style: TextStyle(
+                                                            fontSize: MediaQuery.of(
+                                                                        context)
+                                                                    .size
+                                                                    .width *
+                                                                0.03,
+                                                            color:
+                                                                Color.fromRGBO(
+                                                                    185,
+                                                                    185,
+                                                                    185,
+                                                                    1),
+                                                            fontWeight:
+                                                                FontWeight
+                                                                    .w700),
+                                                      ),
+                                                    ),
+
+                                                    Padding(
+                                                      padding: EdgeInsets.only(
+                                                          left: MediaQuery.of(
+                                                                      context)
+                                                                  .size
+                                                                  .width *
+                                                              0.02),
+                                                      child: Text(
+                                                        sp1,
+                                                        style: TextStyle(
+                                                            fontSize: MediaQuery.of(
+                                                                        context)
+                                                                    .size
+                                                                    .width *
+                                                                0.03,
+                                                            color:
+                                                                Color.fromRGBO(
+                                                                    69,
+                                                                    180,
+                                                                    215,
+                                                                    1),
+                                                            fontWeight:
+                                                                FontWeight
+                                                                    .w700),
+                                                      ),
+                                                    ),
+                                                  ],
+                                                ),
+                                              ),
+                                            ],
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                                Padding(
+                                  padding: EdgeInsets.only(left: 10.0),
+                                  child: InkWell(
+                                    onTap: () {
+                                      setState(() {
+                                        jenis = "ph";
+                                      });
+                                      getdata();
+                                    },
+                                    child: Container(
+                                      height:
+                                          MediaQuery.of(context).size.width *
+                                              0.205,
+                                      width: MediaQuery.of(context).size.width *
+                                          0.205,
+                                      decoration: BoxDecoration(
+                                          borderRadius:
+                                              BorderRadius.circular(15.0),
+                                          color: Colors.white,
+                                          boxShadow: [
+                                            BoxShadow(
+                                                color: Colors.grey[300],
+                                                blurRadius: 20,
+                                                offset: Offset(0, 3))
+                                          ]),
+                                      child: Padding(
+                                        padding: EdgeInsets.only(
+                                            top: MediaQuery.of(context)
+                                                    .size
+                                                    .width *
+                                                0.055),
+                                        child: Column(
+                                          children: <Widget>[
+                                            // Image.asset("assets/iconfinder_24_4698595.png",height: MediaQuery.of(context).size.width * 0.23,width: MediaQuery.of(context).size.width * 0.23,),
+
+                                            Stack(
+                                              children: <Widget>[
+                                                SvgPicture.asset(
+                                                  "assets/ph (2).svg",
+                                                  height: MediaQuery.of(context)
+                                                          .size
+                                                          .width *
+                                                      0.077,
+                                                  width: MediaQuery.of(context)
+                                                          .size
+                                                          .width *
+                                                      0.077,
+                                                ),
+                                              ],
+                                            ),
+                                            Padding(
+                                              padding: EdgeInsets.only(
+                                                  top: MediaQuery.of(context)
+                                                          .size
+                                                          .width *
+                                                      0.02),
+                                              child: Row(
+                                                children: <Widget>[
+                                                  Padding(
+                                                      padding: EdgeInsets.only(
+                                                        left: MediaQuery.of(
+                                                                    context)
+                                                                .size
+                                                                .width *
+                                                            0.05,
+                                                      ),
+                                                      child: Container(
+                                                          height: MediaQuery.of(
+                                                                      context)
+                                                                  .size
+                                                                  .width *
+                                                              0.02,
+                                                          width: MediaQuery.of(
+                                                                      context)
+                                                                  .size
+                                                                  .width *
+                                                              0.02,
+                                                          child:
+                                                              CircularProgressIndicator())),
+                                                  Padding(
+                                                    padding: EdgeInsets.only(
+                                                        left: MediaQuery.of(
+                                                                    context)
+                                                                .size
+                                                                .width *
+                                                            0.02),
+                                                    child: Text(
+                                                      "/",
+                                                      style: TextStyle(
+                                                          fontSize: MediaQuery.of(
+                                                                      context)
+                                                                  .size
+                                                                  .width *
+                                                              0.03,
+                                                          color: Color.fromRGBO(
+                                                              185, 185, 185, 1),
+                                                          fontWeight:
+                                                              FontWeight.w700),
+                                                    ),
+                                                  ),
+                                                  Padding(
+                                                    padding: EdgeInsets.only(
+                                                        left: MediaQuery.of(
+                                                                    context)
+                                                                .size
+                                                                .width *
+                                                            0.02),
+                                                    child: Text(
+                                                      sp2,
+                                                      style: TextStyle(
+                                                          fontSize: MediaQuery.of(
+                                                                      context)
+                                                                  .size
+                                                                  .width *
+                                                              0.03,
+                                                          color: Color.fromRGBO(
+                                                              69, 180, 215, 1),
+                                                          fontWeight:
+                                                              FontWeight.w700),
+                                                    ),
+                                                  ),
+                                                ],
+                                              ),
+                                            )
+                                          ],
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                                Padding(
+                                  padding: EdgeInsets.only(left: 10.0),
+                                  child: InkWell(
+                                    onTap: () {
+                                      setState(() {
+                                        jenis = "air";
+                                      });
+                                      getdata();
+                                    },
+                                    child: Container(
+                                      height:
+                                          MediaQuery.of(context).size.width *
+                                              0.205,
+                                      width: MediaQuery.of(context).size.width *
+                                          0.205,
+                                      decoration: BoxDecoration(
+                                          borderRadius:
+                                              BorderRadius.circular(15.0),
+                                          color: Colors.white,
+                                          boxShadow: [
+                                            BoxShadow(
+                                                color: Colors.grey[300],
+                                                blurRadius: 20,
+                                                offset: Offset(0, 3))
+                                          ]),
+                                      child: Padding(
+                                        padding: EdgeInsets.only(
+                                            top: MediaQuery.of(context)
+                                                    .size
+                                                    .width *
+                                                0.055),
+                                        child: Column(
+                                          children: <Widget>[
+                                            // Image.asset("assets/iconfinder_24_4698595.png",height: MediaQuery.of(context).size.width * 0.23,width: MediaQuery.of(context).size.width * 0.23,),
+
+                                            Stack(
+                                              children: <Widget>[
+                                                SvgPicture.asset(
+                                                  "assets/flood.svg",
+                                                  height: MediaQuery.of(context)
+                                                          .size
+                                                          .width *
+                                                      0.077,
+                                                  width: MediaQuery.of(context)
+                                                          .size
+                                                          .width *
+                                                      0.077,
+                                                ),
+                                              ],
+                                            ),
+                                            Padding(
+                                              padding: EdgeInsets.only(
+                                                  top: MediaQuery.of(context)
+                                                          .size
+                                                          .width *
+                                                      0.02),
+                                              child: Row(
+                                                children: <Widget>[
+                                                  Padding(
+                                                      padding: EdgeInsets.only(
+                                                        left: MediaQuery.of(
+                                                                    context)
+                                                                .size
+                                                                .width *
+                                                            0.05,
+                                                      ),
+                                                      child: Container(
+                                                          height: MediaQuery.of(
+                                                                      context)
+                                                                  .size
+                                                                  .width *
+                                                              0.02,
+                                                          width: MediaQuery.of(
+                                                                      context)
+                                                                  .size
+                                                                  .width *
+                                                              0.02,
+                                                          child:
+                                                              CircularProgressIndicator())),
+                                                ],
+                                              ),
+                                            )
+                                          ],
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                                Padding(
+                                  padding: EdgeInsets.only(left: 10.0),
+                                  child: InkWell(
+                                    onTap: () {
+                                      setState(() {
+                                        jenis = "nutrisi";
+                                      });
+                                      getdata();
+                                    },
+                                    child: Container(
+                                      height:
+                                          MediaQuery.of(context).size.width *
+                                              0.205,
+                                      width: MediaQuery.of(context).size.width *
+                                          0.205,
+                                      decoration: BoxDecoration(
+                                          borderRadius:
+                                              BorderRadius.circular(15.0),
+                                          color: Colors.white,
+                                          boxShadow: [
+                                            BoxShadow(
+                                                color: Colors.grey[300],
+                                                blurRadius: 20,
+                                                offset: Offset(0, 3))
+                                          ]),
+                                      child: Padding(
+                                        padding: EdgeInsets.only(
+                                            top: MediaQuery.of(context)
+                                                    .size
+                                                    .width *
+                                                0.055),
+                                        child: Column(
+                                          children: <Widget>[
+                                            // Image.asset("assets/iconfinder_24_4698595.png",height: MediaQuery.of(context).size.width * 0.23,width: MediaQuery.of(context).size.width * 0.23,),
+
+                                            Stack(
+                                              children: <Widget>[
+                                                SvgPicture.asset(
+                                                  "assets/fertilizer.svg",
+                                                  height: MediaQuery.of(context)
+                                                          .size
+                                                          .width *
+                                                      0.08,
+                                                  width: MediaQuery.of(context)
+                                                          .size
+                                                          .width *
+                                                      0.08,
+                                                ),
+                                              ],
+                                            ),
+                                            Padding(
+                                              padding: EdgeInsets.only(
+                                                  top: MediaQuery.of(context)
+                                                          .size
+                                                          .width *
+                                                      0.02),
+                                              child: Row(
+                                                children: <Widget>[
+                                                  Padding(
+                                                      padding: EdgeInsets.only(
+                                                        left: MediaQuery.of(
+                                                                    context)
+                                                                .size
+                                                                .width *
+                                                            0.09,
+                                                      ),
+                                                      child: Container(
+                                                          height: MediaQuery.of(
+                                                                      context)
+                                                                  .size
+                                                                  .width *
+                                                              0.02,
+                                                          width: MediaQuery.of(
+                                                                      context)
+                                                                  .size
+                                                                  .width *
+                                                              0.02,
+                                                          child:
+                                                              CircularProgressIndicator())),
+                                                ],
+                                              ),
+                                            )
+                                          ],
+                                        ),
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ],
+                        );
+                      }
+                      DataSnapshot snapshot = snap.data.snapshot;
+                      // print(snapshot.value['sensor']);
+                      var string = snapshot.value['Realtime'];
+                      var val = string.split('#');
+                      // data.add(val);
+                      getSetpoint();
+                      // print(val);
+                      // val == initial ? print("yes") : print('no');
+                      return Column(
+                        children: <Widget>[
+                          Row(
+                            children: <Widget>[
+                              InkWell(
+                                onTap: () {
+                                  setState(() {
+                                    jenis = "lampu";
+                                  });
+                                  getdata();
+                                },
+                                child: Container(
                                   height:
                                       MediaQuery.of(context).size.width * 0.205,
                                   width:
@@ -561,15 +1172,13 @@ class _DashboardState extends State<Dashboard> {
                                             ),
                                             Padding(
                                               padding: EdgeInsets.only(
-                                                  left: MediaQuery.of(context)
-                                                          .size
-                                                          .width *
-                                                      0.02,
                                                   top: MediaQuery.of(context)
                                                           .size
                                                           .width *
                                                       0.015),
                                               child: Row(
+                                                mainAxisAlignment:
+                                                    MainAxisAlignment.center,
                                                 children: <Widget>[
                                                   // DataSnapshot snapshot = snap.data.snapshot;
                                                   // if(!snap.hasData)return CircularProgressIndicator(valueColor: AlwaysStoppedAnimation<Color>(Colors.grey),);
@@ -580,30 +1189,19 @@ class _DashboardState extends State<Dashboard> {
                                                   // data.add(val);
                                                   // print(val);
 
-                                                  Padding(
-                                                      padding: EdgeInsets.only(
-                                                          left: MediaQuery.of(context)
-                                                                  .size
-                                                                  .width *
-                                                              0.02,
-                                                          top: MediaQuery.of(
-                                                                      context)
-                                                                  .size
-                                                                  .width *
-                                                              0.0),
-                                                      child: Container(
-                                                          height: MediaQuery.of(
-                                                                      context)
-                                                                  .size
-                                                                  .width *
-                                                              0.02,
-                                                          width: MediaQuery.of(
-                                                                      context)
-                                                                  .size
-                                                                  .width *
-                                                              0.02,
-                                                          child:
-                                                              CircularProgressIndicator())),
+                                                  Text(
+                                                    val[1].toString(),
+                                                    style: TextStyle(
+                                                        fontSize: MediaQuery.of(
+                                                                    context)
+                                                                .size
+                                                                .width *
+                                                            0.03,
+                                                        color: Color.fromRGBO(
+                                                            104, 223, 85, 1),
+                                                        fontWeight:
+                                                            FontWeight.w700),
+                                                  ),
 
                                                   Padding(
                                                     padding: EdgeInsets.only(
@@ -635,7 +1233,7 @@ class _DashboardState extends State<Dashboard> {
                                                                 .width *
                                                             0.02),
                                                     child: Text(
-                                                      sp1,
+                                                      sp3,
                                                       style: TextStyle(
                                                           fontSize: MediaQuery.of(
                                                                       context)
@@ -657,8 +1255,16 @@ class _DashboardState extends State<Dashboard> {
                                     ),
                                   ),
                                 ),
-                                Padding(
-                                  padding: EdgeInsets.only(left: 10.0),
+                              ),
+                              Padding(
+                                padding: EdgeInsets.only(left: 10.0),
+                                child: InkWell(
+                                  onTap: () {
+                                    setState(() {
+                                      jenis = "ph";
+                                    });
+                                    getdata();
+                                  },
                                   child: Container(
                                     height: MediaQuery.of(context).size.width *
                                         0.205,
@@ -706,28 +1312,22 @@ class _DashboardState extends State<Dashboard> {
                                                         .width *
                                                     0.02),
                                             child: Row(
+                                              mainAxisAlignment:
+                                                  MainAxisAlignment.center,
                                               children: <Widget>[
-                                                Padding(
-                                                    padding: EdgeInsets.only(
-                                                      left:
+                                                Text(
+                                                  val[4].toString(),
+                                                  style: TextStyle(
+                                                      fontSize:
                                                           MediaQuery.of(context)
                                                                   .size
                                                                   .width *
-                                                              0.05,
-                                                    ),
-                                                    child: Container(
-                                                        height: MediaQuery.of(
-                                                                    context)
-                                                                .size
-                                                                .width *
-                                                            0.02,
-                                                        width: MediaQuery.of(
-                                                                    context)
-                                                                .size
-                                                                .width *
-                                                            0.02,
-                                                        child:
-                                                            CircularProgressIndicator())),
+                                                              0.03,
+                                                      color: Color.fromRGBO(
+                                                          104, 223, 85, 1),
+                                                      fontWeight:
+                                                          FontWeight.w700),
+                                                ),
                                                 Padding(
                                                   padding: EdgeInsets.only(
                                                       left:
@@ -757,7 +1357,7 @@ class _DashboardState extends State<Dashboard> {
                                                                   .width *
                                                               0.02),
                                                   child: Text(
-                                                    sp2,
+                                                    sp1,
                                                     style: TextStyle(
                                                         fontSize: MediaQuery.of(
                                                                     context)
@@ -778,8 +1378,16 @@ class _DashboardState extends State<Dashboard> {
                                     ),
                                   ),
                                 ),
-                                Padding(
-                                  padding: EdgeInsets.only(left: 10.0),
+                              ),
+                              Padding(
+                                padding: EdgeInsets.only(left: 10.0),
+                                child: InkWell(
+                                  onTap: () {
+                                    setState(() {
+                                      jenis = "air";
+                                    });
+                                    getdata();
+                                  },
                                   child: Container(
                                     height: MediaQuery.of(context).size.width *
                                         0.205,
@@ -827,28 +1435,22 @@ class _DashboardState extends State<Dashboard> {
                                                         .width *
                                                     0.02),
                                             child: Row(
+                                              mainAxisAlignment:
+                                                  MainAxisAlignment.center,
                                               children: <Widget>[
-                                                Padding(
-                                                    padding: EdgeInsets.only(
-                                                      left:
+                                                Text(
+                                                  val[3].toString() + ' cm',
+                                                  style: TextStyle(
+                                                      fontSize:
                                                           MediaQuery.of(context)
                                                                   .size
                                                                   .width *
-                                                              0.05,
-                                                    ),
-                                                    child: Container(
-                                                        height: MediaQuery.of(
-                                                                    context)
-                                                                .size
-                                                                .width *
-                                                            0.02,
-                                                        width: MediaQuery.of(
-                                                                    context)
-                                                                .size
-                                                                .width *
-                                                            0.02,
-                                                        child:
-                                                            CircularProgressIndicator())),
+                                                              0.03,
+                                                      color: Color.fromRGBO(
+                                                          104, 223, 85, 1),
+                                                      fontWeight:
+                                                          FontWeight.w700),
+                                                ),
                                               ],
                                             ),
                                           )
@@ -857,8 +1459,16 @@ class _DashboardState extends State<Dashboard> {
                                     ),
                                   ),
                                 ),
-                                Padding(
-                                  padding: EdgeInsets.only(left: 10.0),
+                              ),
+                              Padding(
+                                padding: EdgeInsets.only(left: 10.0),
+                                child: InkWell(
+                                  onTap: () {
+                                    setState(() {
+                                      jenis = "nutrisi";
+                                    });
+                                    getdata();
+                                  },
                                   child: Container(
                                     height: MediaQuery.of(context).size.width *
                                         0.205,
@@ -906,113 +1516,11 @@ class _DashboardState extends State<Dashboard> {
                                                         .width *
                                                     0.02),
                                             child: Row(
-                                              children: <Widget>[
-                                                Padding(
-                                                    padding: EdgeInsets.only(
-                                                      left:
-                                                          MediaQuery.of(context)
-                                                                  .size
-                                                                  .width *
-                                                              0.09,
-                                                    ),
-                                                    child: Container(
-                                                        height: MediaQuery.of(
-                                                                    context)
-                                                                .size
-                                                                .width *
-                                                            0.02,
-                                                        width: MediaQuery.of(
-                                                                    context)
-                                                                .size
-                                                                .width *
-                                                            0.02,
-                                                        child:
-                                                            CircularProgressIndicator())),
-                                              ],
-                                            ),
-                                          )
-                                        ],
-                                      ),
-                                    ),
-                                  ),
-                                ),
-                              ],
-                            ),
-                          ],
-                        );
-                      }
-                      DataSnapshot snapshot = snap.data.snapshot;
-                      // print(snapshot.value['sensor']);
-                      var string = snapshot.value['Realtime'];
-                      var val = string.split('#');
-                      // data.add(val);
-                      getSetpoint();
-                      // print(val);
-                      // val == initial ? print("yes") : print('no');
-                      return Column(
-                        children: <Widget>[
-                          Row(
-                            children: <Widget>[
-                              Container(
-                                height:
-                                    MediaQuery.of(context).size.width * 0.205,
-                                width:
-                                    MediaQuery.of(context).size.width * 0.205,
-                                decoration: BoxDecoration(
-                                    borderRadius: BorderRadius.circular(15.0),
-                                    color: Colors.white,
-                                    boxShadow: [
-                                      BoxShadow(
-                                          color: Colors.grey[300],
-                                          blurRadius: 20,
-                                          offset: Offset(0, 3))
-                                    ]),
-                                child: Padding(
-                                  padding: EdgeInsets.only(
-                                      top: MediaQuery.of(context).size.width *
-                                          0.055),
-                                  child: Column(
-                                    children: <Widget>[
-                                      // Image.asset("assets/iconfinder_24_4698595.png",height: MediaQuery.of(context).size.width * 0.23,width: MediaQuery.of(context).size.width * 0.23,),
-
-                                      Column(
-                                        children: <Widget>[
-                                          Stack(
-                                            children: <Widget>[
-                                              SvgPicture.asset(
-                                                "assets/lamp.svg",
-                                                height: MediaQuery.of(context)
-                                                        .size
-                                                        .width *
-                                                    0.08,
-                                                width: MediaQuery.of(context)
-                                                        .size
-                                                        .width *
-                                                    0.08,
-                                              ),
-                                            ],
-                                          ),
-                                          Padding(
-                                            padding: EdgeInsets.only(
-                                                top: MediaQuery.of(context)
-                                                        .size
-                                                        .width *
-                                                    0.015),
-                                            child: Row(
                                               mainAxisAlignment:
                                                   MainAxisAlignment.center,
                                               children: <Widget>[
-                                                // DataSnapshot snapshot = snap.data.snapshot;
-                                                // if(!snap.hasData)return CircularProgressIndicator(valueColor: AlwaysStoppedAnimation<Color>(Colors.grey),);
-                                                // DataSnapshot snapshot = snap.data.snapshot;
-                                                // // print(snapshot.value['sensor']);
-                                                // var string = snapshot.value['sensor'];
-                                                // var val = string.split('#');
-                                                // data.add(val);
-                                                // print(val);
-
                                                 Text(
-                                                  val[1].toString(),
+                                                  val[2].toString(),
                                                   style: TextStyle(
                                                       fontSize:
                                                           MediaQuery.of(context)
@@ -1024,7 +1532,6 @@ class _DashboardState extends State<Dashboard> {
                                                       fontWeight:
                                                           FontWeight.w700),
                                                 ),
-
                                                 Padding(
                                                   padding: EdgeInsets.only(
                                                       left:
@@ -1046,7 +1553,6 @@ class _DashboardState extends State<Dashboard> {
                                                             FontWeight.w700),
                                                   ),
                                                 ),
-
                                                 Padding(
                                                   padding: EdgeInsets.only(
                                                       left:
@@ -1055,7 +1561,7 @@ class _DashboardState extends State<Dashboard> {
                                                                   .width *
                                                               0.02),
                                                   child: Text(
-                                                    sp3,
+                                                    sp2,
                                                     style: TextStyle(
                                                         fontSize: MediaQuery.of(
                                                                     context)
@@ -1070,299 +1576,9 @@ class _DashboardState extends State<Dashboard> {
                                                 ),
                                               ],
                                             ),
-                                          ),
+                                          )
                                         ],
                                       ),
-                                    ],
-                                  ),
-                                ),
-                              ),
-                              Padding(
-                                padding: EdgeInsets.only(left: 10.0),
-                                child: Container(
-                                  height:
-                                      MediaQuery.of(context).size.width * 0.205,
-                                  width:
-                                      MediaQuery.of(context).size.width * 0.205,
-                                  decoration: BoxDecoration(
-                                      borderRadius: BorderRadius.circular(15.0),
-                                      color: Colors.white,
-                                      boxShadow: [
-                                        BoxShadow(
-                                            color: Colors.grey[300],
-                                            blurRadius: 20,
-                                            offset: Offset(0, 3))
-                                      ]),
-                                  child: Padding(
-                                    padding: EdgeInsets.only(
-                                        top: MediaQuery.of(context).size.width *
-                                            0.055),
-                                    child: Column(
-                                      children: <Widget>[
-                                        // Image.asset("assets/iconfinder_24_4698595.png",height: MediaQuery.of(context).size.width * 0.23,width: MediaQuery.of(context).size.width * 0.23,),
-
-                                        Stack(
-                                          children: <Widget>[
-                                            SvgPicture.asset(
-                                              "assets/ph (2).svg",
-                                              height: MediaQuery.of(context)
-                                                      .size
-                                                      .width *
-                                                  0.077,
-                                              width: MediaQuery.of(context)
-                                                      .size
-                                                      .width *
-                                                  0.077,
-                                            ),
-                                          ],
-                                        ),
-                                        Padding(
-                                          padding: EdgeInsets.only(
-                                              top: MediaQuery.of(context)
-                                                      .size
-                                                      .width *
-                                                  0.02),
-                                          child: Row(
-                                            mainAxisAlignment:
-                                                MainAxisAlignment.center,
-                                            children: <Widget>[
-                                              Text(
-                                                val[4].toString(),
-                                                style: TextStyle(
-                                                    fontSize:
-                                                        MediaQuery.of(context)
-                                                                .size
-                                                                .width *
-                                                            0.03,
-                                                    color: Color.fromRGBO(
-                                                        104, 223, 85, 1),
-                                                    fontWeight:
-                                                        FontWeight.w700),
-                                              ),
-                                              Padding(
-                                                padding: EdgeInsets.only(
-                                                    left: MediaQuery.of(context)
-                                                            .size
-                                                            .width *
-                                                        0.02),
-                                                child: Text(
-                                                  "/",
-                                                  style: TextStyle(
-                                                      fontSize:
-                                                          MediaQuery.of(context)
-                                                                  .size
-                                                                  .width *
-                                                              0.03,
-                                                      color: Color.fromRGBO(
-                                                          185, 185, 185, 1),
-                                                      fontWeight:
-                                                          FontWeight.w700),
-                                                ),
-                                              ),
-                                              Padding(
-                                                padding: EdgeInsets.only(
-                                                    left: MediaQuery.of(context)
-                                                            .size
-                                                            .width *
-                                                        0.02),
-                                                child: Text(
-                                                  sp1,
-                                                  style: TextStyle(
-                                                      fontSize:
-                                                          MediaQuery.of(context)
-                                                                  .size
-                                                                  .width *
-                                                              0.03,
-                                                      color: Color.fromRGBO(
-                                                          69, 180, 215, 1),
-                                                      fontWeight:
-                                                          FontWeight.w700),
-                                                ),
-                                              ),
-                                            ],
-                                          ),
-                                        )
-                                      ],
-                                    ),
-                                  ),
-                                ),
-                              ),
-                              Padding(
-                                padding: EdgeInsets.only(left: 10.0),
-                                child: Container(
-                                  height:
-                                      MediaQuery.of(context).size.width * 0.205,
-                                  width:
-                                      MediaQuery.of(context).size.width * 0.205,
-                                  decoration: BoxDecoration(
-                                      borderRadius: BorderRadius.circular(15.0),
-                                      color: Colors.white,
-                                      boxShadow: [
-                                        BoxShadow(
-                                            color: Colors.grey[300],
-                                            blurRadius: 20,
-                                            offset: Offset(0, 3))
-                                      ]),
-                                  child: Padding(
-                                    padding: EdgeInsets.only(
-                                        top: MediaQuery.of(context).size.width *
-                                            0.055),
-                                    child: Column(
-                                      children: <Widget>[
-                                        // Image.asset("assets/iconfinder_24_4698595.png",height: MediaQuery.of(context).size.width * 0.23,width: MediaQuery.of(context).size.width * 0.23,),
-
-                                        Stack(
-                                          children: <Widget>[
-                                            SvgPicture.asset(
-                                              "assets/flood.svg",
-                                              height: MediaQuery.of(context)
-                                                      .size
-                                                      .width *
-                                                  0.077,
-                                              width: MediaQuery.of(context)
-                                                      .size
-                                                      .width *
-                                                  0.077,
-                                            ),
-                                          ],
-                                        ),
-                                        Padding(
-                                          padding: EdgeInsets.only(
-                                              top: MediaQuery.of(context)
-                                                      .size
-                                                      .width *
-                                                  0.02),
-                                          child: Row(
-                                            mainAxisAlignment:
-                                                MainAxisAlignment.center,
-                                            children: <Widget>[
-                                              Text(
-                                                val[3].toString() + ' cm',
-                                                style: TextStyle(
-                                                    fontSize:
-                                                        MediaQuery.of(context)
-                                                                .size
-                                                                .width *
-                                                            0.03,
-                                                    color: Color.fromRGBO(
-                                                        104, 223, 85, 1),
-                                                    fontWeight:
-                                                        FontWeight.w700),
-                                              ),
-                                            ],
-                                          ),
-                                        )
-                                      ],
-                                    ),
-                                  ),
-                                ),
-                              ),
-                              Padding(
-                                padding: EdgeInsets.only(left: 10.0),
-                                child: Container(
-                                  height:
-                                      MediaQuery.of(context).size.width * 0.205,
-                                  width:
-                                      MediaQuery.of(context).size.width * 0.205,
-                                  decoration: BoxDecoration(
-                                      borderRadius: BorderRadius.circular(15.0),
-                                      color: Colors.white,
-                                      boxShadow: [
-                                        BoxShadow(
-                                            color: Colors.grey[300],
-                                            blurRadius: 20,
-                                            offset: Offset(0, 3))
-                                      ]),
-                                  child: Padding(
-                                    padding: EdgeInsets.only(
-                                        top: MediaQuery.of(context).size.width *
-                                            0.055),
-                                    child: Column(
-                                      children: <Widget>[
-                                        // Image.asset("assets/iconfinder_24_4698595.png",height: MediaQuery.of(context).size.width * 0.23,width: MediaQuery.of(context).size.width * 0.23,),
-
-                                        Stack(
-                                          children: <Widget>[
-                                            SvgPicture.asset(
-                                              "assets/fertilizer.svg",
-                                              height: MediaQuery.of(context)
-                                                      .size
-                                                      .width *
-                                                  0.08,
-                                              width: MediaQuery.of(context)
-                                                      .size
-                                                      .width *
-                                                  0.08,
-                                            ),
-                                          ],
-                                        ),
-                                        Padding(
-                                          padding: EdgeInsets.only(
-                                              top: MediaQuery.of(context)
-                                                      .size
-                                                      .width *
-                                                  0.02),
-                                          child: Row(
-                                            mainAxisAlignment:
-                                                MainAxisAlignment.center,
-                                            children: <Widget>[
-                                              Text(
-                                                val[2].toString(),
-                                                style: TextStyle(
-                                                    fontSize:
-                                                        MediaQuery.of(context)
-                                                                .size
-                                                                .width *
-                                                            0.03,
-                                                    color: Color.fromRGBO(
-                                                        104, 223, 85, 1),
-                                                    fontWeight:
-                                                        FontWeight.w700),
-                                              ),
-                                              Padding(
-                                                padding: EdgeInsets.only(
-                                                    left: MediaQuery.of(context)
-                                                            .size
-                                                            .width *
-                                                        0.02),
-                                                child: Text(
-                                                  "/",
-                                                  style: TextStyle(
-                                                      fontSize:
-                                                          MediaQuery.of(context)
-                                                                  .size
-                                                                  .width *
-                                                              0.03,
-                                                      color: Color.fromRGBO(
-                                                          185, 185, 185, 1),
-                                                      fontWeight:
-                                                          FontWeight.w700),
-                                                ),
-                                              ),
-                                              Padding(
-                                                padding: EdgeInsets.only(
-                                                    left: MediaQuery.of(context)
-                                                            .size
-                                                            .width *
-                                                        0.02),
-                                                child: Text(
-                                                  sp2,
-                                                  style: TextStyle(
-                                                      fontSize:
-                                                          MediaQuery.of(context)
-                                                                  .size
-                                                                  .width *
-                                                              0.03,
-                                                      color: Color.fromRGBO(
-                                                          69, 180, 215, 1),
-                                                      fontWeight:
-                                                          FontWeight.w700),
-                                                ),
-                                              ),
-                                            ],
-                                          ),
-                                        )
-                                      ],
                                     ),
                                   ),
                                 ),
@@ -1421,7 +1637,32 @@ class _DashboardState extends State<Dashboard> {
                       },
                       child: Padding(
                         padding: EdgeInsets.only(
-                            left: MediaQuery.of(context).size.width * 0.2),
+                            left: MediaQuery.of(context).size.width * 0.1),
+                        child: Text(
+                          "Add",
+                          style: TextStyle(
+                              color: Color.fromRGBO(96, 168, 90, 1),
+                              fontSize:
+                                  MediaQuery.of(context).size.width * 0.034,
+                              fontWeight: FontWeight.w400),
+                        ),
+                      ),
+                    ),
+                    InkWell(
+                      onTap: () async {
+                        lampug = sp3;
+                        nutrisig = sp2;
+                        phg = sp1;
+                        // titles = "spname";
+                        // buahedit = "buah";
+                        await get_fruitandspname_latest();
+                        Navigator.of(context, rootNavigator: true).push(
+                            MaterialPageRoute(
+                                builder: (context) => Editupdate()));
+                      },
+                      child: Padding(
+                        padding: EdgeInsets.only(
+                            left: MediaQuery.of(context).size.width * 0.05),
                         child: Text(
                           "Update",
                           style: TextStyle(
