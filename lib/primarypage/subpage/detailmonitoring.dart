@@ -69,12 +69,13 @@ class _DetailmonitoringState extends State<Detailmonitoring> {
                           Column(
                             children: <Widget>[
                               Text(
-                                datamonitoring[iter].nutrisi,
+                                double.parse(datamonitoring[iter].nutrisi)
+                                    .toStringAsFixed(2),
                                 style: TextStyle(
                                   fontWeight: FontWeight.w800,
                                   fontFamily: "Inter",
                                   fontSize:
-                                      MediaQuery.of(context).size.width * 0.05,
+                                      MediaQuery.of(context).size.width * 0.04,
                                   color: Color.fromRGBO(106, 106, 106, 1),
                                 ),
                               ),
@@ -104,12 +105,13 @@ class _DetailmonitoringState extends State<Detailmonitoring> {
                           Column(
                             children: <Widget>[
                               Text(
-                                datamonitoring[iter].air,
+                                double.parse(datamonitoring[iter].air)
+                                    .toStringAsFixed(2),
                                 style: TextStyle(
                                   fontWeight: FontWeight.w800,
                                   fontFamily: "Inter",
                                   fontSize:
-                                      MediaQuery.of(context).size.width * 0.05,
+                                      MediaQuery.of(context).size.width * 0.04,
                                   color: Color.fromRGBO(106, 106, 106, 1),
                                 ),
                               ),
@@ -139,12 +141,13 @@ class _DetailmonitoringState extends State<Detailmonitoring> {
                           Column(
                             children: <Widget>[
                               Text(
-                                datamonitoring[iter].ph,
+                                double.parse(datamonitoring[iter].ph)
+                                    .toStringAsFixed(2),
                                 style: TextStyle(
                                   fontWeight: FontWeight.w800,
                                   fontFamily: "Inter",
                                   fontSize:
-                                      MediaQuery.of(context).size.width * 0.05,
+                                      MediaQuery.of(context).size.width * 0.04,
                                   color: Color.fromRGBO(106, 106, 106, 1),
                                 ),
                               ),
@@ -174,12 +177,13 @@ class _DetailmonitoringState extends State<Detailmonitoring> {
                           Column(
                             children: <Widget>[
                               Text(
-                                datamonitoring[iter].lampu,
+                                double.parse(datamonitoring[iter].lampu)
+                                    .toStringAsFixed(2),
                                 style: TextStyle(
                                   fontWeight: FontWeight.w800,
                                   fontFamily: "Inter",
                                   fontSize:
-                                      MediaQuery.of(context).size.width * 0.05,
+                                      MediaQuery.of(context).size.width * 0.04,
                                   color: Color.fromRGBO(106, 106, 106, 1),
                                 ),
                               ),

@@ -28,7 +28,7 @@ List<Setpoint> eggplant = <Setpoint>[];
 List<Setpoint> strawberry = <Setpoint>[];
 List<Setpoint> greenchili = <Setpoint>[];
 List<Setpointcustom> customplant = <Setpointcustom>[];
-List<Report> datafilter = <Report>[];
+List<Reportz> datafiltered = <Reportz>[];
 List<Setpoint> tampilsp = <Setpoint>[];
 List<Customplant> custom = <Customplant>[];
 List<Customplant> customdetail = <Customplant>[];
@@ -40,7 +40,8 @@ var linkApi = "https://server-autohydro.herokuapp.com/";
 var lampug;
 var phg;
 var nutrisig;
-
+var hide;
+// final _hiddenSeriesList = Set<String>();
 var fake = ["tomato", "assets/tomato.svg", "Solanum lycopersicum"];
 
 var datab = [
@@ -109,3 +110,15 @@ var jumlahdata = [];
 var vgtanaman;
 var currindex = 0;
 List<Setp> setp = <Setp>[];
+
+int segmen;
+var at;
+var loop1;
+var loop2;
+var loop3;
+var loop4;
+var loop5;
+var loop6;
+var loop7;
+var loop8;
+var datagrafik;

@@ -22,21 +22,10 @@ class History extends StatefulWidget {
 class _HistoryState extends State<History> {
   // var x ="Tomato";
   var cek = 0;
-  var r = "";
-  var datas;
+  var r = 4;
   var ctime;
   var t = DateFormat('EEEE').format(DateTime.now());
   var ts = DateFormat('d LLL y').format(DateTime.now());
-  var segmen;
-  var at;
-  var loop1;
-  var loop2;
-  var loop3;
-  var loop4;
-  var loop5;
-  var loop6;
-  var loop7;
-  var loop8;
 
   int lx;
 
@@ -51,6 +40,8 @@ class _HistoryState extends State<History> {
   }
 
   next() {
+    print(segmen);
+    print(at);
     // print(loop1);
     if (segmen == 1)
       _showDialog("Information", "anda sudah berada pada halaman terakhir");
@@ -643,7 +634,7 @@ class _HistoryState extends State<History> {
         InkWell(
           onTap: () async {
             setState(() {
-              r = buah;
+              r = iter;
             });
             ke = iter;
 
@@ -674,7 +665,7 @@ class _HistoryState extends State<History> {
                       left: MediaQuery.of(context).size.width * 0.12),
                   child: Align(
                       alignment: Alignment.centerLeft,
-                      child: r == buah
+                      child: r == iter
                           ? CircularProgressIndicator(
                               valueColor: AlwaysStoppedAnimation<Color>(warna))
                           : Text(
@@ -740,20 +731,20 @@ class _HistoryState extends State<History> {
     databar3.clear();
     databar4.clear();
     for (var i = awal; i < iter; i++) {
-      Timestamp timestamp = datas[i]['tanggal dan waktu'];
+      Timestamp timestamp = datagrafik[i]['tanggal dan waktu'];
       var date = DateTime.parse(timestamp.toDate().toString());
       var tgl = formatDate(
         date,
         ['HH', ':', 'nn'],
       );
-      databar1.add(Stacked(
-          tgl.toString(), datas[i]['lampu'], Color.fromRGBO(96, 168, 90, 1)));
-      databar2.add(Stacked(tgl.toString(), datas[i]['tinggi air'],
+      databar1.add(Stacked(tgl.toString(), datagrafik[i]['lampu'],
+          Color.fromRGBO(96, 168, 90, 1)));
+      databar2.add(Stacked(tgl.toString(), datagrafik[i]['tinggi air'],
           Color.fromRGBO(130, 255, 119, 1)));
-      databar3.add(Stacked(
-          tgl.toString(), datas[i]['nutrisi'], Color.fromRGBO(52, 104, 67, 1)));
-      databar4.add(Stacked(
-          tgl.toString(), datas[i]['ph'], Color.fromRGBO(135, 173, 70, 0.62)));
+      databar3.add(Stacked(tgl.toString(), datagrafik[i]['nutrisi'],
+          Color.fromRGBO(52, 104, 67, 1)));
+      databar4.add(Stacked(tgl.toString(), datagrafik[i]['ph'],
+          Color.fromRGBO(135, 173, 70, 0.62)));
     }
     setState(() {});
   }
@@ -776,15 +767,15 @@ class _HistoryState extends State<History> {
         .where("tanggal dan waktu",
             isGreaterThanOrEqualTo: start, isLessThan: end)
         .getDocuments()
-        .then((value) => datas = value.documents);
-    if (datas.length == 0) {
+        .then((value) => datagrafik = value.documents);
+    if (datagrafik.length == 0) {
       databar1.clear();
       databar2.clear();
       databar3.clear();
       databar4.clear();
       setState(() {});
       _showDialog("Information", "Belum ada data");
-    } else if (datas.length != 0) segment(datas.length);
+    } else if (datagrafik.length != 0) segment(datagrafik.length);
     // var time = timeago.format(waktu);
     // Timestamp timestamp = datas;
     // if (datas.length > 7 ){
@@ -840,7 +831,7 @@ class _HistoryState extends State<History> {
             for (var k = 0; k < datamonitoring.length; k++) {
               datamonitoring[k].sp = hasil[m]['SP'];
               setState(() {
-                r = "";
+                r = 4;
               });
             }
           } else if (jsp > 1) {
@@ -861,7 +852,7 @@ class _HistoryState extends State<History> {
                     for (var k = start; k < datamonitoring.length; k++) {
                       datamonitoring[k].sp = hasil[m]['sp' + '$i'];
                       setState(() {
-                        r = "";
+                        r = 4;
                       });
                     }
                   } else {
@@ -885,7 +876,7 @@ class _HistoryState extends State<History> {
         for (var i = 0; i < datamonitoring.length; i++) {
           datamonitoring[i].sp = hasil[0]['SP'];
           setState(() {
-            r = "";
+            r = 4;
           });
         }
       } else if (jsp > 1) {
@@ -906,7 +897,7 @@ class _HistoryState extends State<History> {
                 for (var k = start; k < datamonitoring.length; k++) {
                   datamonitoring[k].sp = hasil[0]['sp' + '$i'];
                   setState(() {
-                    r = "";
+                    r = 4;
                   });
                 }
               } else {
@@ -925,20 +916,36 @@ class _HistoryState extends State<History> {
   }
 
   selection() {
-    datafilter.clear();
-    datafilter.addAll(datareport);
+    datafiltered.clear();
     if (datareport.length != 0) {
+      for (var k = 0; k < datareport.length; k++) {
+        datafiltered.add(Reportz(datareport[k].buah, datareport[k].tanggaltanam,
+            datareport[k].tanggalpanen));
+      }
       for (var i = 0; i < datareport.length; i++) {
         for (var j = i + 1; j < datareport.length; j++) {
+          // print(i);
           if (datareport[i].buah == datareport[j].buah) {
-            datafilter[j].buah = 'hapus';
+            // print("sama");
+            datafiltered[j].buah = 'hapus';
           }
         }
       }
+      // print("object");
+      setState(() {});
       Navigator.of(context, rootNavigator: true)
           .push(MaterialPageRoute(builder: (context) => Export()));
     }
   }
+
+  // selection() {
+  //   datafilter.clear();
+  //   // for(var k = 0 ; k < datareport.length; k++){
+  //   //   if ( )
+
+  //   // }
+
+  // }
 
   @override
   void initState() {
@@ -996,11 +1003,26 @@ class _HistoryState extends State<History> {
       )
     ];
 
+    // var m = 1;
+
     var chart = charts.BarChart(
       series,
       barGroupingType: charts.BarGroupingType.stacked,
       barRendererDecorator: charts.BarLabelDecorator<String>(),
-      behaviors: [new charts.SeriesLegend()],
+      behaviors: [
+        new charts.SeriesLegend(
+            defaultHiddenSeries: hide == 4
+                ? []
+                : hide == 3
+                    ? ['Air', 'Nutrisi', 'pH']
+                    : hide == 2
+                        ? ['Lampu', 'Nutrisi', 'pH']
+                        : hide == 1
+                            ? ['Air', 'Lampu', 'Nutrisi']
+                            : hide == 0
+                                ? ['Air', 'Lampu', 'pH']
+                                : []),
+      ],
     );
     return Scaffold(
       backgroundColor: Colors.white,

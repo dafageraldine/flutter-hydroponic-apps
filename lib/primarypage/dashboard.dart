@@ -1,6 +1,6 @@
 import 'dart:async';
 import 'dart:math';
-
+import 'package:charts_flutter/flutter.dart' as charts;
 import 'package:date_format/date_format.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -42,17 +42,17 @@ class _DashboardState extends State<Dashboard> {
 //   });
 // }
   var jenis;
-  var datas;
-  var segmen;
-  var at;
-  var loop1;
-  var loop2;
-  var loop3;
-  var loop4;
-  var loop5;
-  var loop6;
-  var loop7;
-  var loop8;
+  // var datas;
+  // var segmen;
+  // var at;
+  // var loop1;
+  // var loop2;
+  // var loop3;
+  // var loop4;
+  // var loop5;
+  // var loop6;
+  // var loop7;
+  // var loop8;
   getdata() async {
     var time = DateFormat('yyyy-MM-dd').format(DateTime.now());
     DateTime start = DateTime.parse(time + ' 00:00');
@@ -72,8 +72,8 @@ class _DashboardState extends State<Dashboard> {
         .where("tanggal dan waktu",
             isGreaterThanOrEqualTo: start, isLessThan: end)
         .getDocuments()
-        .then((value) => datas = value.documents);
-    if (datas.length == 0) {
+        .then((value) => datagrafik = value.documents);
+    if (datagrafik.length == 0) {
       databar1.clear();
       databar2.clear();
       databar3.clear();
@@ -85,9 +85,9 @@ class _DashboardState extends State<Dashboard> {
       Navigator.of(context, rootNavigator: true)
           .push(MaterialPageRoute(builder: (context) => Bottom()));
       // _showDialog("Information", "Belum ada data");
-    } else if (datas.length != 0) {
-      print(datas);
-      segment(datas.length);
+    } else if (datagrafik.length != 0) {
+      print(datagrafik);
+      segment(datagrafik.length);
     }
     // var time = timeago.format(waktu);
     // Timestamp timestamp = datas;
@@ -105,26 +105,39 @@ class _DashboardState extends State<Dashboard> {
     databar3.clear();
     databar4.clear();
     for (var i = awal; i < iter; i++) {
-      Timestamp timestamp = datas[i]['tanggal dan waktu'];
+      Timestamp timestamp = datagrafik[i]['tanggal dan waktu'];
       var date = DateTime.parse(timestamp.toDate().toString());
       var tgl = formatDate(
         date,
         ['HH', ':', 'nn'],
       );
-      jenis == "lampu"
-          ? databar1.add(Stacked(tgl.toString(), datas[i]['lampu'],
-              Color.fromRGBO(96, 168, 90, 1)))
-          : jenis == "air"
-              ? databar2.add(Stacked(tgl.toString(), datas[i]['tinggi air'],
-                  Color.fromRGBO(130, 255, 119, 1)))
-              : jenis == "nutrisi"
-                  ? databar3.add(Stacked(tgl.toString(), datas[i]['nutrisi'],
-                      Color.fromRGBO(52, 104, 67, 1)))
-                  : jenis == "ph"
-                      ? databar4.add(Stacked(tgl.toString(), datas[i]['ph'],
-                          Color.fromRGBO(135, 173, 70, 0.62)))
-                      : print("");
+
+      databar1.add(Stacked(tgl.toString(), datagrafik[i]['lampu'],
+          Color.fromRGBO(96, 168, 90, 1)));
+      // : jenis == "air"
+      //     ?
+      databar2.add(Stacked(tgl.toString(), datagrafik[i]['tinggi air'],
+          Color.fromRGBO(130, 255, 119, 1)));
+      // : jenis == "nutrisi"
+      //     ?
+      databar3.add(Stacked(tgl.toString(), datagrafik[i]['nutrisi'],
+          Color.fromRGBO(52, 104, 67, 1)));
+      // : jenis == "ph"
+      //     ?
+      databar4.add(Stacked(tgl.toString(), datagrafik[i]['ph'],
+          Color.fromRGBO(135, 173, 70, 0.62)));
+      // : print("");
     }
+    if (jenis == "lampu") {
+      hide = 3;
+    } else if (jenis == "air") {
+      hide = 2;
+    } else if (jenis == "nutrisi") {
+      hide = 0;
+    } else if (jenis == "ph") {
+      hide = 1;
+    }
+    print(databar1.length);
     currindex = 1;
     setState(() {});
 

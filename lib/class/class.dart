@@ -44,6 +44,14 @@ class Report {
   Report(this.buah, this.tanggaltanam, this.tanggalpanen);
 }
 
+class Reportz {
+  String buah;
+  String tanggaltanam;
+  String tanggalpanen;
+
+  Reportz(this.buah, this.tanggaltanam, this.tanggalpanen);
+}
+
 class Reporting {
   String buah;
   String tanggaltanam;

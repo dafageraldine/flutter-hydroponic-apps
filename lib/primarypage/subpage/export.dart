@@ -118,10 +118,22 @@ class _ExportState extends State<Export> {
               sheet, 1, i + 2, datamonitoring[i].tahun.toString()) //Tanggal
           ..updateCell(sheet, 2, i + 2, datamonitoring[i].buah) //Tanaman
           ..updateCell(sheet, 3, i + 2, datamonitoring[i].sp) //nama setpoint
-          ..updateCell(sheet, 4, i + 2, datamonitoring[i].nutrisi) //nutrisi
-          ..updateCell(sheet, 5, i + 2, datamonitoring[i].air) //ketinggian air
-          ..updateCell(sheet, 6, i + 2, datamonitoring[i].ph) //ph
-          ..updateCell(sheet, 7, i + 2, datamonitoring[i].lampu) //lampu
+          ..updateCell(
+              sheet,
+              4,
+              i + 2,
+              double.parse(datamonitoring[i].nutrisi)
+                  .toStringAsFixed(2)) //nutrisi
+          ..updateCell(
+              sheet,
+              5,
+              i + 2,
+              double.parse(datamonitoring[i].air)
+                  .toStringAsFixed(2)) //ketinggian air
+          ..updateCell(sheet, 6, i + 2,
+              double.parse(datamonitoring[i].ph).toStringAsFixed(2)) //ph
+          ..updateCell(sheet, 7, i + 2,
+              double.parse(datamonitoring[i].lampu).toStringAsFixed(2)) //lampu
           ..updateCell(sheet, 8, i + 2, datamonitoring[i].catatan); //catatan
       }
       Directory appDocDirectory = await getExternalStorageDirectory();
@@ -183,10 +195,14 @@ class _ExportState extends State<Export> {
           ..updateCell(sheet, 1, i + 2, filtered[i].tahun) //Tanggal
           ..updateCell(sheet, 2, i + 2, filtered[i].buah) //Tanaman
           ..updateCell(sheet, 3, i + 2, filtered[i].sp) //nama setpoint
-          ..updateCell(sheet, 4, i + 2, filtered[i].nutrisi) //nutrisi
-          ..updateCell(sheet, 5, i + 2, filtered[i].air) //ketinggian air
-          ..updateCell(sheet, 6, i + 2, filtered[i].ph) //ph
-          ..updateCell(sheet, 7, i + 2, filtered[i].lampu) //lampu
+          ..updateCell(sheet, 4, i + 2,
+              double.parse(filtered[i].nutrisi).toStringAsFixed(2)) //nutrisi
+          ..updateCell(sheet, 5, i + 2,
+              double.parse(filtered[i].air).toStringAsFixed(2)) //ketinggian air
+          ..updateCell(sheet, 6, i + 2,
+              double.parse(filtered[i].ph).toStringAsFixed(2)) //ph
+          ..updateCell(sheet, 7, i + 2,
+              double.parse(filtered[i].lampu).toStringAsFixed(2)) //lampu
           ..updateCell(sheet, 8, i + 2, filtered[i].catatan); //catatan
       }
       Directory appDocDirectory = await getExternalStorageDirectory();
@@ -1495,14 +1511,14 @@ class _ExportState extends State<Export> {
                       alignment: Alignment.centerLeft,
                       child: ListView.builder(
                         itemBuilder: (context, index) {
-                          return datafilter[index].buah == 'hapus'
+                          return datafiltered[index].buah == 'hapus'
                               ? Padding(
                                   padding: EdgeInsets.only(top: 0),
                                 )
                               : GestureDetector(
                                   onTap: () {
                                     setState(() {
-                                      buahs = datafilter[index].buah;
+                                      buahs = datafiltered[index].buah;
                                     });
                                   },
                                   child: Padding(
@@ -1532,7 +1548,8 @@ class _ExportState extends State<Export> {
                                                   border: Border.all(
                                                       width: 2,
                                                       color: buahs ==
-                                                              datafilter[index]
+                                                              datafiltered[
+                                                                      index]
                                                                   .buah
                                                           ? Colors.green
                                                           : Colors.white),
@@ -1566,12 +1583,12 @@ class _ExportState extends State<Export> {
                                                           .height *
                                                       0.01),
                                               child: Text(
-                                                datafilter[index].buah,
+                                                datafiltered[index].buah,
                                                 style: TextStyle(
                                                     fontFamily: "Inter",
                                                     fontWeight: FontWeight.w500,
                                                     color: buahs ==
-                                                            datafilter[index]
+                                                            datafiltered[index]
                                                                 .buah
                                                         ? Color.fromRGBO(
                                                             82, 82, 82, 1)
@@ -1586,7 +1603,7 @@ class _ExportState extends State<Export> {
                                   ),
                                 );
                         },
-                        itemCount: datafilter.length,
+                        itemCount: datafiltered.length,
                         shrinkWrap: true,
                         scrollDirection: Axis.horizontal,
                       ),

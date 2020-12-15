@@ -18,17 +18,6 @@ class Bottom extends StatefulWidget {
 }
 
 class _BottomState extends State<Bottom> {
-  var datas;
-  var segmen;
-  var at;
-  var loop1;
-  var loop2;
-  var loop3;
-  var loop4;
-  var loop5;
-  var loop6;
-  var loop7;
-  var loop8;
   getdata(time) async {
     DateTime start = DateTime.parse(time + ' 00:00');
     DateTime end = DateTime.parse(time + ' 23:59');
@@ -47,17 +36,17 @@ class _BottomState extends State<Bottom> {
         .where("tanggal dan waktu",
             isGreaterThanOrEqualTo: start, isLessThan: end)
         .getDocuments()
-        .then((value) => datas = value.documents);
-    if (datas.length == 0) {
+        .then((value) => datagrafik = value.documents);
+    if (datagrafik.length == 0) {
       databar1.clear();
       databar2.clear();
       databar3.clear();
       databar4.clear();
       setState(() {});
       // _showDialog("Information", "Belum ada data");
-    } else if (datas.length != 0) {
-      print(datas);
-      segment(datas.length);
+    } else if (datagrafik.length != 0) {
+      // print(datagrafik);
+      segment(datagrafik.length);
     }
     // var time = timeago.format(waktu);
     // Timestamp timestamp = datas;
@@ -75,20 +64,20 @@ class _BottomState extends State<Bottom> {
     databar3.clear();
     databar4.clear();
     for (var i = awal; i < iter; i++) {
-      Timestamp timestamp = datas[i]['tanggal dan waktu'];
+      Timestamp timestamp = datagrafik[i]['tanggal dan waktu'];
       var date = DateTime.parse(timestamp.toDate().toString());
       var tgl = formatDate(
         date,
         ['HH', ':', 'nn'],
       );
-      databar1.add(Stacked(
-          tgl.toString(), datas[i]['lampu'], Color.fromRGBO(96, 168, 90, 1)));
-      databar2.add(Stacked(tgl.toString(), datas[i]['tinggi air'],
+      databar1.add(Stacked(tgl.toString(), datagrafik[i]['lampu'],
+          Color.fromRGBO(96, 168, 90, 1)));
+      databar2.add(Stacked(tgl.toString(), datagrafik[i]['tinggi air'],
           Color.fromRGBO(130, 255, 119, 1)));
-      databar3.add(Stacked(
-          tgl.toString(), datas[i]['nutrisi'], Color.fromRGBO(52, 104, 67, 1)));
-      databar4.add(Stacked(
-          tgl.toString(), datas[i]['ph'], Color.fromRGBO(135, 173, 70, 0.62)));
+      databar3.add(Stacked(tgl.toString(), datagrafik[i]['nutrisi'],
+          Color.fromRGBO(52, 104, 67, 1)));
+      databar4.add(Stacked(tgl.toString(), datagrafik[i]['ph'],
+          Color.fromRGBO(135, 173, 70, 0.62)));
     }
     setState(() {});
   }
@@ -308,6 +297,7 @@ class _BottomState extends State<Bottom> {
             } else if (index == 3) {
               await getactivity();
             } else if (index == 1) {
+              hide = 4;
               var ctime = DateFormat('yyyy-MM-dd').format(DateTime.now());
               getdata(ctime);
             }
