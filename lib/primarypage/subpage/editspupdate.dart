@@ -2,6 +2,7 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_database/firebase_database.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_svg/flutter_svg.dart';
+import 'package:hydroponic/class/class.dart';
 import 'package:hydroponic/list/list.dart';
 import 'package:hydroponic/primarypage/bottom_nav.dart';
 
@@ -127,6 +128,7 @@ class _EditupdateState extends State<Editupdate> {
         setState(() {
           lx = 1;
         });
+        await getsetpoint();
         _showDialog("Success", "setpoint has been updated successfully");
       }
     } else {
@@ -189,6 +191,64 @@ class _EditupdateState extends State<Editupdate> {
         );
       },
     );
+  }
+
+  getsetpoint() async {
+    strawberry.clear();
+    tomato.clear();
+    watermelon.clear();
+    orange.clear();
+    blueberry.clear();
+    mango.clear();
+    apple.clear();
+    eggplant.clear();
+    greenchili.clear();
+    var datasp;
+    await Firestore.instance
+        .collection('setpoint-collection')
+        .getDocuments()
+        .then((value) => datasp = value.documents);
+
+    for (var i = 0; i < datasp.length; i++) {
+      if (datasp[i]['buah'] == "Strawberry") {
+        var vals = datasp[i]['value'].split('#');
+        strawberry.add(Setpoint(datasp[i]['spname'], vals[1].toString(),
+            vals[2].toString(), vals[3].toString()));
+      } else if (datasp[i]['buah'] == "Tomato") {
+        var vals = datasp[i]['value'].split('#');
+        tomato.add(Setpoint(datasp[i]['spname'], vals[1].toString(),
+            vals[2].toString(), vals[3].toString()));
+      } else if (datasp[i]['buah'] == "Orange") {
+        var vals = datasp[i]['value'].split('#');
+        orange.add(Setpoint(datasp[i]['spname'], vals[1].toString(),
+            vals[2].toString(), vals[3].toString()));
+      } else if (datasp[i]['buah'] == "Apple") {
+        var vals = datasp[i]['value'].split('#');
+        apple.add(Setpoint(datasp[i]['spname'], vals[1].toString(),
+            vals[2].toString(), vals[3].toString()));
+      } else if (datasp[i]['buah'] == "Egg Plant") {
+        var vals = datasp[i]['value'].split('#');
+        eggplant.add(Setpoint(datasp[i]['spname'], vals[1].toString(),
+            vals[2].toString(), vals[3].toString()));
+      } else if (datasp[i]['buah'] == "Blueberry") {
+        var vals = datasp[i]['value'].split('#');
+        blueberry.add(Setpoint(datasp[i]['spname'], vals[1].toString(),
+            vals[2].toString(), vals[3].toString()));
+      } else if (datasp[i]['buah'] == "Mango") {
+        var vals = datasp[i]['value'].split('#');
+        mango.add(Setpoint(datasp[i]['spname'], vals[1].toString(),
+            vals[2].toString(), vals[3].toString()));
+      } else if (datasp[i]['buah'] == "Watermelon") {
+        var vals = datasp[i]['value'].split('#');
+        watermelon.add(Setpoint(datasp[i]['spname'], vals[1].toString(),
+            vals[2].toString(), vals[3].toString()));
+      } else if (datasp[i]['buah'] == "Green Chili") {
+        var vals = datasp[i]['value'].split('#');
+        greenchili.add(Setpoint(datasp[i]['spname'], vals[1].toString(),
+            vals[2].toString(), vals[3].toString()));
+      }
+    }
+    // print("finish");
   }
 
   @override
